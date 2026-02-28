@@ -33,16 +33,38 @@ const insightColors = {
     info: "text-blue-400 bg-blue-400/10",
 };
 
+import Image from "next/image";
+
 export default async function DashboardPage() {
     const stats = await getDashboardStats();
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Visão Geral da Igreja</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-                </p>
+        <div className="space-y-6 lg:space-y-8">
+            {/* Apple-style Hero Banner */}
+            <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-border/50 shadow-sm glass-card">
+                <div className="absolute top-0 right-0 w-1/2 h-full opacity-90 hidden md:block">
+                    <Image
+                        src="/images/dashboard-banner.png"
+                        alt="Dashboard Banner"
+                        fill
+                        className="object-cover object-right"
+                        priority
+                    />
+                </div>
+                <div className="relative p-8 md:p-12 md:w-2/3 z-10">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                        Visão Geral da Igreja
+                    </h1>
+                    <p className="text-base md:text-lg text-muted-foreground mt-3 max-w-[500px]">
+                        Bom dia! Aqui você encontra as métricas reais do seu sistema,
+                        atualizadas em {new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}.
+                    </p>
+                    <div className="mt-6">
+                        <Button className="rounded-full shadow-md font-medium px-6">
+                            Ver Relatórios Detalhados
+                        </Button>
+                    </div>
+                </div>
             </div>
 
             {/* KPI Cards */}
