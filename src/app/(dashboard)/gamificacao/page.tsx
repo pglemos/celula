@@ -11,64 +11,69 @@ export default async function GamificacaoPage() {
     ]);
 
     return (
-        <div className="space-y-6 animate-fade-in-up">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="space-y-8 pb-20">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8 pl-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Gamificação</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <h1 className="text-4xl font-light tracking-tight text-slate-800">Gamificação</h1>
+                    <p className="text-base font-medium text-slate-500 mt-1">
                         Ranking, XP, Níveis e Conquistas
                     </p>
                 </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {/* Liderança (Leaderboard) */}
-                <Card className="glass-card md:col-span-2">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <div>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <Trophy className="h-5 w-5 text-amber-500" /> Leaderboard
-                            </CardTitle>
-                            <CardDescription>Top membros por pontos de experiência (XP)</CardDescription>
+                {/* Leaderboard */}
+                <Card className="md:col-span-2 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white/60 backdrop-blur-md rounded-[40px] overflow-hidden">
+                    <CardHeader className="px-8 pt-8 pb-4 border-b border-slate-200/50">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="text-2xl font-medium text-slate-800 tracking-tight flex items-center gap-3">
+                                    <div className="p-2 rounded-2xl bg-amber-100 text-amber-600">
+                                        <Trophy className="h-5 w-5" />
+                                    </div>
+                                    Leaderboard
+                                </CardTitle>
+                                <CardDescription className="text-sm text-slate-500 mt-1 ml-12">Top membros por pontos de experiência (XP)</CardDescription>
+                            </div>
+                            <Users className="h-5 w-5 text-slate-400" />
                         </div>
-                        <Users className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4 mt-4">
+                    <CardContent className="px-8 pb-8">
+                        <div className="space-y-3 mt-6">
                             {leaderboard.length === 0 ? (
-                                <div className="py-8 text-center text-sm text-muted-foreground">
-                                    Nenhum participante no ranking ainda.
+                                <div className="py-12 text-center text-sm text-slate-400">
+                                    <Trophy className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+                                    <p className="text-lg font-medium text-slate-500">Nenhum participante no ranking</p>
                                 </div>
                             ) : (
                                 leaderboard.map((profile, i) => {
                                     const rank = i + 1;
-                                    const isTop3 = rank <= 3;
                                     return (
-                                        <div key={profile.id} className="flex items-center gap-4 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
+                                        <div key={profile.id} className="flex items-center gap-4 p-4 rounded-[24px] bg-white/80 hover:bg-white transition-all hover:shadow-sm border border-transparent hover:border-slate-200">
                                             <div className="flex items-center justify-center w-8 font-bold">
                                                 {rank === 1 ? <Crown className="h-6 w-6 text-amber-400" /> :
-                                                    rank === 2 ? <Medal className="h-6 w-6 text-slate-300" /> :
+                                                    rank === 2 ? <Medal className="h-6 w-6 text-slate-400" /> :
                                                         rank === 3 ? <Medal className="h-6 w-6 text-amber-700" /> :
-                                                            <span className="text-muted-foreground">#{rank}</span>}
+                                                            <span className="text-slate-400 font-bold text-sm">#{rank}</span>}
                                             </div>
 
-                                            <Avatar className={`h-10 w-10 border-2 ${rank === 1 ? 'border-amber-400' : rank === 2 ? 'border-slate-300' : rank === 3 ? 'border-amber-700' : 'border-primary/20'}`}>
+                                            <Avatar className={`h-11 w-11 border-2 shadow-sm ${rank === 1 ? 'border-amber-400' : rank === 2 ? 'border-slate-300' : rank === 3 ? 'border-amber-700' : 'border-slate-200'}`}>
                                                 <AvatarImage src={profile.person?.photo_url || ""} />
-                                                <AvatarFallback className="bg-primary/10 text-primary">
+                                                <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-sm">
                                                     {profile.person?.full_name?.substring(0, 2).toUpperCase() || "??"}
                                                 </AvatarFallback>
                                             </Avatar>
 
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-bold truncate">
+                                                <p className="text-sm font-semibold truncate text-slate-800">
                                                     {profile.person?.full_name || "Membro Desconhecido"}
                                                 </p>
-                                                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                                                    <span className="flex items-center gap-1 text-primary">
+                                                <div className="flex items-center gap-3 text-xs text-slate-400 mt-0.5">
+                                                    <span className="flex items-center gap-1 text-indigo-500 font-semibold">
                                                         <Star className="h-3 w-3" /> Nível {profile.level}
                                                     </span>
                                                     {profile.current_streak > 0 && (
-                                                        <span className="flex items-center gap-1 text-orange-500">
+                                                        <span className="flex items-center gap-1 text-orange-500 font-semibold">
                                                             <Flame className="h-3 w-3" /> {profile.current_streak} dias
                                                         </span>
                                                     )}
@@ -77,7 +82,7 @@ export default async function GamificacaoPage() {
 
                                             <div className="text-right">
                                                 <span className="text-lg font-black text-amber-500">{profile.xp_total}</span>
-                                                <span className="text-[10px] text-muted-foreground uppercase ml-1">XP</span>
+                                                <span className="text-[10px] text-slate-400 uppercase ml-1 font-bold">XP</span>
                                             </div>
                                         </div>
                                     );
@@ -87,25 +92,29 @@ export default async function GamificacaoPage() {
                     </CardContent>
                 </Card>
 
-                {/* Badges Disponíveis */}
-                <Card className="glass-card">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <Medal className="h-5 w-5 text-indigo-500" /> Conquistas
+                {/* Badges */}
+                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white/60 backdrop-blur-md rounded-[40px] overflow-hidden">
+                    <CardHeader className="px-8 pt-8 pb-4 border-b border-slate-200/50">
+                        <CardTitle className="text-2xl font-medium text-slate-800 tracking-tight flex items-center gap-3">
+                            <div className="p-2 rounded-2xl bg-indigo-100 text-indigo-600">
+                                <Medal className="h-5 w-5" />
+                            </div>
+                            Conquistas
                         </CardTitle>
-                        <CardDescription>Badges disponíveis no sistema</CardDescription>
+                        <CardDescription className="text-sm text-slate-500 mt-1 ml-12">Badges disponíveis no sistema</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-2 gap-3 mt-4">
+                    <CardContent className="px-8 pb-8">
+                        <div className="grid grid-cols-2 gap-4 mt-6">
                             {badges.length === 0 ? (
-                                <div className="col-span-2 py-8 text-center text-sm text-muted-foreground">
-                                    Nenhuma badge cadastrada.
+                                <div className="col-span-2 py-12 text-center text-sm text-slate-400">
+                                    <Medal className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+                                    <p className="text-lg font-medium text-slate-500">Nenhuma badge cadastrada</p>
                                 </div>
                             ) : (
                                 badges.map((badge) => (
-                                    <div key={badge.id} className="flex flex-col items-center justify-center p-4 rounded-xl border border-border/50 bg-secondary/20 text-center gap-2">
+                                    <div key={badge.id} className="flex flex-col items-center justify-center p-5 rounded-[24px] bg-white/80 border border-slate-100 text-center gap-2 hover:shadow-sm transition-all">
                                         <div
-                                            className="h-12 w-12 rounded-full flex items-center justify-center shadow-inner"
+                                            className="h-12 w-12 rounded-full flex items-center justify-center shadow-sm"
                                             style={{ backgroundColor: `${badge.color}20`, border: `2px solid ${badge.color}` }}
                                         >
                                             <span className="text-2xl" role="img" aria-label={badge.name}>
@@ -113,8 +122,8 @@ export default async function GamificacaoPage() {
                                             </span>
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold leading-tight">{badge.name}</p>
-                                            <p className="text-[10px] text-muted-foreground mt-1">+{badge.xp_reward} XP</p>
+                                            <p className="text-xs font-bold leading-tight text-slate-700">{badge.name}</p>
+                                            <p className="text-[10px] text-slate-400 mt-1 font-semibold">+{badge.xp_reward} XP</p>
                                         </div>
                                     </div>
                                 ))

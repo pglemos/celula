@@ -15,24 +15,12 @@ export default async function MembrosPage({
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8 pl-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Membros</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        {people.length} pessoas cadastradas
+                    <h1 className="text-4xl font-light tracking-tight text-slate-800">Membros</h1>
+                    <p className="text-base font-medium text-slate-500 mt-1">
+                        Gerencie os <span className="font-bold text-slate-900">{people.length}</span> membros cadastrados.
                     </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="gap-2">
-                        <Download className="h-4 w-4" />
-                        Exportar
-                    </Button>
-                    <Link href="/membros/novo">
-                        <Button size="sm" className="gap-2 bg-primary hover:bg-primary/90">
-                            <Plus className="h-4 w-4" />
-                            Novo Membro
-                        </Button>
-                    </Link>
                 </div>
             </div>
 

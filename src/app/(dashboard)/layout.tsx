@@ -9,18 +9,15 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex h-screen bg-[#f3f4f6] selection:bg-primary/20 p-4 gap-4 overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#e4ebe9] to-[#f3f4f6] -z-10" />
+        <div className="flex h-screen bg-[#f5f5f7] p-3 gap-3 overflow-hidden">
             <div className="h-full z-10 flex flex-col shrink-0">
                 <AppSidebar />
             </div>
-            <div className="flex flex-1 flex-col transition-all duration-300 h-full overflow-y-auto relative custom-scrollbar z-10 bg-white/40 backdrop-blur-md rounded-[32px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
-                <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none">
-                    <div className="pointer-events-auto">
-                        <AppHeader />
-                    </div>
-                </div>
-                <main className="flex-1 p-3 md:p-4 w-full mx-auto relative">{children}</main>
+            <div className="flex flex-1 flex-col h-full overflow-hidden rounded-[24px] bg-white/50 backdrop-blur-sm border border-white/60 shadow-sm">
+                <AppHeader />
+                <main className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-6">
+                    {children}
+                </main>
             </div>
         </div>
     );

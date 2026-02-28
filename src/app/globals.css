@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -52,47 +52,40 @@
 }
 
 :root {
-  --radius: 1.5rem;
-  /* Base radius for standard cards */
+  --radius: 1.25rem;
 
-  /* Very light grey-blue background typical of premium SaaS */
   --background: oklch(0.975 0.005 240);
   --foreground: oklch(0.15 0.02 240);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0.02 240);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.02 240);
-  --primary: oklch(0.1 0 0);
-  /* Black as primary for active pills */
+  --primary: oklch(0.25 0.01 260);
   --primary-foreground: oklch(1 0 0);
-  /* White text on primary */
-  --secondary: oklch(0.96 0.01 240);
+  --secondary: oklch(0.965 0.005 240);
   --secondary-foreground: oklch(0.20 0.02 240);
-  --muted: oklch(0.96 0.01 240);
-  --muted-foreground: oklch(0.50 0.02 240);
-  --accent: oklch(0.85 0.15 90);
-  /* Electric Yellow/Lime Accent */
+  --muted: oklch(0.96 0.005 240);
+  --muted-foreground: oklch(0.50 0.015 240);
+  --accent: oklch(0.965 0.005 240);
   --accent-foreground: oklch(0.15 0.02 240);
   --destructive: oklch(0.60 0.20 25);
-  --border: oklch(0.92 0.01 240);
-  --input: oklch(0.92 0.01 240);
-  --ring: oklch(0.40 0.15 255);
-  --chart-1: oklch(0.40 0.15 255);
-  --chart-2: oklch(0.85 0.15 90);
-  --chart-3: oklch(0.20 0.02 240);
-  /* Onyx Black */
-  --chart-4: oklch(0.70 0.15 200);
-  --chart-5: oklch(0.65 0.20 20);
+  --border: oklch(0.93 0.005 240);
+  --input: oklch(0.93 0.005 240);
+  --ring: oklch(0.50 0.10 260);
 
-  /* Sidebar */
+  --chart-1: oklch(0.55 0.15 260);
+  --chart-2: oklch(0.65 0.18 155);
+  --chart-3: oklch(0.20 0.02 240);
+  --chart-4: oklch(0.70 0.12 200);
+  --chart-5: oklch(0.65 0.18 20);
+
   --sidebar: oklch(1 0 0);
-  /* Light soft sidebar */
   --sidebar-foreground: oklch(0.15 0.02 240);
   --sidebar-primary: oklch(0.15 0.02 240);
   --sidebar-primary-foreground: oklch(0.98 0 0);
   --sidebar-accent: oklch(0.965 0.005 240);
   --sidebar-accent-foreground: oklch(0.15 0.02 240);
-  --sidebar-border: oklch(0.94 0.01 240);
+  --sidebar-border: oklch(0.94 0.005 240);
   --sidebar-ring: oklch(0.15 0.02 240);
 
   --success: oklch(0.70 0.18 155);
@@ -109,74 +102,67 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Base background for floating UI */
-.mesh-bg {
-  background-color: #f0f2f5;
-  background-image: linear-gradient(135deg, #f4f6f8 0%, #eef0f3 100%);
-  background-attachment: fixed;
+/* ── Custom Scrollbar ──────────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Premium Glass/Bento Cards resembling Santorini UI */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ── Glassmorphic Card System ──────────────────────────── */
 .bento-card {
-  @apply bg-white/70 backdrop-blur-xl transition-all duration-300;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
-  border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.03),
+    0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bento-card:hover {
-  @apply -translate-y-[2px];
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-/* Inner pill cards with extremely rounded corners */
-.sugar-pill-card {
-  @apply bg-white/80 backdrop-blur-lg transition-all duration-300;
-  border-radius: 9999px;
-  /* Max pill shape */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-}
-
-/* Solid accent cards for high visual impact */
 .bento-card-primary {
-  @apply bg-primary text-primary-foreground border-primary transition-all duration-300;
-  box-shadow: 0 8px 30px rgba(40, 20, 255, 0.1);
+  @apply bg-primary text-primary-foreground border-primary;
+  box-shadow: 0 4px 24px rgba(30, 20, 80, 0.12);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bento-card-primary:hover {
-  @apply -translate-y-[2px];
-  box-shadow: 0 12px 40px rgba(40, 20, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 36px rgba(30, 20, 80, 0.18);
 }
 
-.bento-card-accent {
-  @apply bg-accent text-accent-foreground border-accent transition-all duration-300;
-  box-shadow: 0 8px 30px rgba(220, 240, 0, 0.2);
-}
-
-.bento-card-accent:hover {
-  @apply -translate-y-[2px];
-  box-shadow: 0 12px 40px rgba(220, 240, 0, 0.3);
-}
-
-.bento-card-dark {
-  @apply bg-[#0c0c0c] text-white border-[#1a1a1a] transition-all duration-300;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
-}
-
-.bento-card-dark:hover {
-  @apply -translate-y-[2px] border-[#222];
-  box-shadow: 0 12px 50px rgba(0, 0, 0, 0.15);
-}
-
-/* Animations */
+/* ── Animations ────────────────────────────────────────── */
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
 
   to {
@@ -195,12 +181,40 @@
   }
 }
 
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fade-in-up {
-  animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.1) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 0.08) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
 }

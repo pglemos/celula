@@ -142,44 +142,44 @@ export function MembrosSearch({
     return (
         <>
             <div className="flex flex-col gap-4 sm:flex-row items-center">
-                <div className="relative flex-1 group w-full">
-                    <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                <div className="relative flex-1 group w-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[32px]">
+                    <Search className="absolute left-6 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                     <Input
                         placeholder="Buscar por nome, email, telefone ou bairro..."
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
-                        className="pl-11 h-12 bg-white/60 hover:bg-white focus:bg-white transition-all border border-white shadow-sm rounded-full placeholder:text-slate-400 font-medium text-slate-700"
+                        className="pl-14 h-16 bg-white/60 hover:bg-white focus:bg-white transition-all border-none rounded-[32px] placeholder:text-slate-400 text-lg font-medium text-slate-700"
                     />
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
                     <Button
                         variant={showFilters ? "default" : "ghost"}
                         size="default"
                         className={cn(
-                            "gap-2 rounded-full h-12 px-6 font-bold transition-all shadow-sm border border-white",
+                            "gap-2 rounded-[24px] h-16 px-8 font-bold transition-all shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-none",
                             showFilters ? "bg-slate-900 text-white" : "bg-white/60 text-slate-500 hover:bg-white hover:text-slate-900"
                         )}
                         onClick={() => setShowFilters(!showFilters)}
                     >
-                        <Filter className="h-4 w-4" />
+                        <Filter className="h-5 w-5" />
                         Filtros
                         {activeFiltersCount > 0 && (
-                            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full bg-indigo-500 text-white border-none">
+                            <Badge variant="secondary" className="ml-1 h-6 w-6 p-0 flex items-center justify-center text-[11px] rounded-full bg-indigo-500 text-white border-none">
                                 {activeFiltersCount}
                             </Badge>
                         )}
                     </Button>
                     <Button
                         variant="ghost"
-                        className="gap-2 rounded-full h-12 px-6 font-bold bg-white/60 text-slate-500 hover:bg-white hover:text-slate-900 transition-all shadow-sm border border-white"
+                        className="gap-2 rounded-[24px] h-16 px-8 font-bold bg-white/60 text-slate-500 hover:bg-white hover:text-slate-900 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-none"
                         onClick={handleExport}
                         disabled={isPending}
                     >
-                        <Download className="h-4 w-4" />
+                        <Download className="h-5 w-5" />
                         {isPending ? "..." : "CSV"}
                     </Button>
                     <Link href="/membros/novo">
-                        <Button className="rounded-full h-12 px-8 font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-md">
+                        <Button className="rounded-[24px] h-16 px-10 text-base tracking-wide font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-md">
                             Novo Membro
                         </Button>
                     </Link>
@@ -188,8 +188,8 @@ export function MembrosSearch({
 
             {/* Filter Panel */}
             {showFilters && (
-                <Card className="bento-card animate-fade-in-up">
-                    <CardContent className="p-4">
+                <Card className="bento-card animate-fade-in-up border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white/60 rounded-[32px]">
+                    <CardContent className="p-8">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-sm font-semibold">Filtros Avançados</h3>
                             <Button
@@ -298,20 +298,20 @@ export function MembrosSearch({
             )}
 
             {/* Results Count */}
-            <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between mt-4 mb-2 px-2">
+                <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest">
                     {filteredPeople.length} resultado{filteredPeople.length !== 1 ? "s" : ""}
                     {activeFiltersCount > 0 && " (filtrado)"}
                 </p>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-4">
                 {filteredPeople.length === 0 ? (
-                    <Card className="bento-card">
+                    <Card className="bento-card border-none rounded-[40px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white/60">
                         <CardContent className="p-12 text-center text-muted-foreground flex flex-col items-center justify-center min-h-[300px]">
-                            <p>Nenhum membro encontrado.</p>
+                            <p className="text-lg">Nenhum membro encontrado.</p>
                             <Link href="/membros/novo">
-                                <Button className="mt-4 bg-primary hover:bg-primary/90" size="sm">
+                                <Button className="mt-6 bg-slate-900 text-white hover:bg-slate-800 rounded-full px-8 h-12 font-bold shadow-md">
                                     Cadastrar primeiro membro
                                 </Button>
                             </Link>
@@ -325,15 +325,15 @@ export function MembrosSearch({
                         return (
                             <Link href={`/membros/${member.id}`} key={member.id}>
                                 <Card
-                                    className="sugar-pill-card cursor-pointer group hover:border-indigo-200 transition-all"
+                                    className="cursor-pointer group hover:bg-white/80 transition-all border-none rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white/40 backdrop-blur-md"
                                     style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
                                 >
-                                    <CardContent className="flex items-center gap-4 p-3 pl-4">
-                                        <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-2 ring-slate-100/50">
+                                    <CardContent className="flex items-center gap-6 p-4 pl-6">
+                                        <Avatar className="h-14 w-14 border-4 border-white shadow-sm ring-2 ring-slate-100/50">
                                             {member.photo_url ? (
                                                 <AvatarImage src={member.photo_url} alt={member.full_name} />
                                             ) : null}
-                                            <AvatarFallback className="bg-slate-100 text-slate-600 text-xs font-bold">
+                                            <AvatarFallback className="bg-slate-100 text-slate-600 text-sm font-bold">
                                                 {member.full_name
                                                     .split(" ")
                                                     .map((n) => n[0])
@@ -342,20 +342,20 @@ export function MembrosSearch({
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                                            <p className="font-bold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
                                                 {member.full_name}
                                             </p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest truncate mt-1">
                                                 {cellName} • {member.address_neighborhood || "Sem bairro"}
                                             </p>
                                         </div>
-                                        <div className="hidden lg:flex items-center gap-4 px-4 text-right">
+                                        <div className="hidden lg:flex items-center gap-8 px-8 text-right border-r border-slate-200/50 mr-4">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Contato</span>
-                                                <span className="text-xs font-semibold text-slate-500">{member.phone || "—"}</span>
+                                                <span className="text-sm font-semibold text-slate-600">{member.phone || "—"}</span>
                                             </div>
                                         </div>
-                                        <div className="pr-2">
+                                        <div className="pr-4">
                                             <MembershipBadge
                                                 status={
                                                     member.membership_status as any

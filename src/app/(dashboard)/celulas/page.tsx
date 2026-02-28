@@ -16,19 +16,13 @@ export default async function CelulasPage({
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8 pl-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Células</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        {cells.length} células ativas
+                    <h1 className="text-4xl font-light tracking-tight text-slate-800">Células</h1>
+                    <p className="text-base font-medium text-slate-500 mt-1">
+                        Gerencie as <span className="font-bold text-slate-900">{cells.length}</span> células ativas.
                     </p>
                 </div>
-                <Link href="/celulas/nova">
-                    <Button size="sm" className="gap-2 bg-primary hover:bg-primary/90">
-                        <Plus className="h-4 w-4" />
-                        Nova Célula
-                    </Button>
-                </Link>
             </div>
 
             <CelulasSearch initialSearch={search} cells={cells} meetingDays={MEETING_DAYS} />

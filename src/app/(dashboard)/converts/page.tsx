@@ -18,15 +18,15 @@ export default async function ConvertsPage() {
     ]);
 
     return (
-        <div className="p-6 space-y-6 bg-slate-50/50 min-h-screen">
-            <header className="flex items-center justify-between">
+        <div className="space-y-8 pb-20">
+            <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8 pl-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Novos Convertidos</h1>
-                    <p className="text-slate-500 text-sm">Gerencie a consolidação e integração de novos membros.</p>
+                    <h1 className="text-4xl font-light tracking-tight text-slate-800">Novos Convertidos</h1>
+                    <p className="text-base font-medium text-slate-500 mt-1">Gerencie a consolidação e integração de novos membros.</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="gap-2">
-                        <Filter className="w-4 h-4" /> Filtrar
+                <div className="flex items-center gap-3">
+                    <Button variant="ghost" className="hidden sm:flex gap-2 rounded-[24px] h-14 px-8 font-bold transition-all shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-none bg-white/60 text-slate-500 hover:bg-white hover:text-slate-900">
+                        <Filter className="w-5 h-5" /> Filtrar
                     </Button>
                     <RegisterDecisionModal />
                 </div>
@@ -34,46 +34,50 @@ export default async function ConvertsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
-                    <Card className="border-none shadow-sm overflow-hidden">
-                        <CardHeader className="bg-white border-b border-slate-100">
-                            <CardTitle className="text-lg font-medium">Lista de Conversões</CardTitle>
+                    <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white/60 backdrop-blur-md rounded-[40px] overflow-hidden">
+                        <CardHeader className="bg-transparent border-b border-slate-200/50 px-8 pt-8 pb-4">
+                            <CardTitle className="text-lg font-bold text-slate-800">Lista de Conversões</CardTitle>
                         </CardHeader>
                         <CardContent className="p-0">
                             <Table>
-                                <TableHeader className="bg-slate-50/50">
-                                    <TableRow>
-                                        <TableHead>Nome</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Data Decisão</TableHead>
-                                        <TableHead>Risco de Evasão</TableHead>
-                                        <TableHead className="text-right">Ações</TableHead>
+                                <TableHeader className="bg-transparent">
+                                    <TableRow className="border-none hover:bg-transparent">
+                                        <TableHead className="px-8 font-bold text-slate-400 uppercase tracking-widest text-[10px]">Nome</TableHead>
+                                        <TableHead className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Status</TableHead>
+                                        <TableHead className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Data Decisão</TableHead>
+                                        <TableHead className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Risco Evasão</TableHead>
+                                        <TableHead className="text-right px-8 font-bold text-slate-400 uppercase tracking-widest text-[10px]">Ações</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {converts.map((nc: any) => (
-                                        <TableRow key={nc.id} className="hover:bg-slate-50/80 transition-colors">
-                                            <TableCell className="font-medium">{nc.person?.full_name}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={nc.status === 'new' ? 'destructive' : 'secondary'} className="capitalize">
+                                        <TableRow key={nc.id} className="hover:bg-white/40 transition-colors border-none group cursor-pointer">
+                                            <TableCell className="px-8 py-5">
+                                                <div className="font-bold text-slate-800 text-base group-hover:text-indigo-600 transition-colors">
+                                                    {nc.person?.full_name}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-5">
+                                                <Badge variant={nc.status === 'new' ? 'destructive' : 'secondary'} className={`capitalize px-3 py-1 font-bold text-xs rounded-full border-none ${nc.status === 'new' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'}`}>
                                                     {nc.status === 'new' ? 'Pendente' : nc.status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-slate-500 text-sm">
+                                            <TableCell className="text-slate-500 font-medium text-sm py-5">
                                                 {new Date(nc.conversion_date).toLocaleDateString('pt-BR')}
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                            <TableCell className="py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-20 h-2 bg-slate-200/50 rounded-full overflow-hidden">
                                                         <div
-                                                            className={`h-full ${nc.evasion_risk_score > 0.6 ? 'bg-red-500' : nc.evasion_risk_score > 0.3 ? 'bg-amber-500' : 'bg-green-500'}`}
+                                                            className={`h-full ${nc.evasion_risk_score > 0.6 ? 'bg-rose-500' : nc.evasion_risk_score > 0.3 ? 'bg-amber-500' : 'bg-emerald-500'} transition-all`}
                                                             style={{ width: `${nc.evasion_risk_score * 100}%` }}
                                                         />
                                                     </div>
-                                                    <span className="text-[10px] text-slate-400">{(nc.evasion_risk_score * 100).toFixed(0)}%</span>
+                                                    <span className="text-xs font-bold text-slate-500">{(nc.evasion_risk_score * 100).toFixed(0)}%</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="sm" asChild>
+                                            <TableCell className="text-right px-8 py-5">
+                                                <Button variant="ghost" size="sm" asChild className="rounded-full bg-slate-50 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 font-bold transition-colors">
                                                     <Link href={`/converts/${nc.id}`}>
                                                         <Eye className="w-4 h-4 mr-2" />
                                                         Ver Detalhes
@@ -92,19 +96,19 @@ export default async function ConvertsPage() {
                     <ConsolidationFunnel data={funnelData} />
 
                     {converts.length > 0 && (
-                        <Card className="border-none shadow-sm bg-amber-50/50 border border-amber-100">
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-semibold text-amber-900 flex items-center gap-2">
-                                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-amber-50/80 backdrop-blur-md rounded-[32px]">
+                            <CardHeader className="pb-4 px-6 pt-6">
+                                <CardTitle className="text-sm font-bold text-amber-600 uppercase tracking-widest flex items-center gap-2">
+                                    <AlertTriangle className="w-5 h-5 text-amber-500" />
                                     Alertas de 48h
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="space-y-2">
+                            <CardContent className="px-6 pb-6">
+                                <div className="space-y-3">
                                     {converts.filter((nc: any) => nc.status === 'new').slice(0, 3).map((nc: any) => (
-                                        <div key={nc.id} className="text-xs p-2 bg-white rounded border border-amber-100 flex justify-between items-center">
-                                            <span>{nc.person?.full_name} aguarda contato</span>
-                                            <Clock className="w-3 h-3 text-slate-400" />
+                                        <div key={nc.id} className="text-sm font-bold p-4 bg-white hover:bg-white/80 transition-colors rounded-[20px] border-none shadow-sm flex justify-between items-center group cursor-pointer text-slate-700">
+                                            <span>{nc.person?.full_name} <span className="text-slate-400 font-medium ml-1">aguarda contato</span></span>
+                                            <Clock className="w-4 h-4 text-slate-300 group-hover:text-amber-500 transition-colors" />
                                         </div>
                                     ))}
                                 </div>
@@ -112,7 +116,11 @@ export default async function ConvertsPage() {
                         </Card>
                     )}
 
-                    {converts[0] && <CellMatchingCard convertId={converts[0].id} />}
+                    {converts[0] && (
+                        <div className="[&>div]:rounded-[32px] [&>div]:shadow-[0_8px_30px_rgb(0,0,0,0.04)] [&>div]:border-none">
+                            <CellMatchingCard convertId={converts[0].id} />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
