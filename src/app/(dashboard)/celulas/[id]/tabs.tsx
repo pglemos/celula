@@ -3,20 +3,24 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MembershipBadge } from "@/components/ui/status-badge";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { updateTrainingCompetency } from "@/lib/actions/cell-advanced";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
     Plus, UserCheck, UserX, Target, BookOpen,
-    Phone, CheckCircle2, Clock, AlertTriangle, ArrowRightLeft, Save
+    Phone, CheckCircle2, Clock, AlertTriangle, ArrowRightLeft, Save,
+    Zap, ChevronRight, Star
 } from "lucide-react";
 import Link from "next/link";
 import { MultiplicationDistributor } from "./multiplication-distributor";
+import { cn } from "@/lib/utils";
 
 interface Member {
     id: string;
@@ -158,10 +162,103 @@ export function CellDetailTabs({
             </TabsList>
 
             {/* Members Tab */}
-            {/* ... lines 156-198 ... */}
+            <TabsContent value="participantes" className="mt-4 space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Membros e Frequentadores</h3>
+                    <Button size="sm" className="bg-[#22c55e] hover:bg-[#16a34a] text-[#120a2e] font-black rounded-xl gap-2 h-9 px-4">
+                        <Plus className="h-4 w-4" /> Novo Membro
+                    </Button>
+                </div>
 
-            {/* Meetings Tab */}
-            {/* ... lines 201-254 ... */}
+                <div className="grid gap-3">
+                    {members.map((m) => (
+                        <Card key={m.id} className="glass-card border-border/50 group">
+                            <CardContent className="p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+                                        <AvatarFallback className="bg-slate-100 font-bold text-slate-400">
+                                            {m.person?.full_name[0]}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="font-bold text-slate-700">{m.person?.full_name}</p>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <MembershipBadge status={(m.person?.membership_status as any) || "visitante"} />
+                                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter bg-secondary/30 px-2 py-0.5 rounded-full">
+                                                {m.role === 'leader' ? 'LÍDER' : 'MEMBRO'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Link href={`/app/membros/${m.person?.id}/edit`}>
+                                        <Button variant="outline" size="sm" className="rounded-xl h-9 text-[11px] font-bold border-slate-200 text-slate-500 hover:text-primary hover:border-primary/50 gap-2">
+                                            Editar Cadastro
+                                        </Button>
+                                    </Link>
+                                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-300">
+                                        <Phone className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            </TabsContent>
+
+            {/* Meetings/Acontecimentos Tab */}
+            <TabsContent value="reunioes" className="mt-4 space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Histórico de Reuniões</h3>
+                    <Link href={`/celulas/${cellId}/reuniao`}>
+                        <Button size="sm" className="bg-primary hover:bg-primary/90 rounded-xl gap-2 h-9 px-4">
+                            <Plus className="h-4 w-4" /> Lançar Frequência
+                        </Button>
+                    </Link>
+                </div>
+
+                <div className="grid gap-3">
+                    {meetings.length === 0 ? (
+                        <div className="p-12 text-center bg-secondary/10 rounded-[32px] border-2 border-dashed border-border/20">
+                            <p className="text-sm text-muted-foreground">Nenhuma reunião registrada ainda.</p>
+                        </div>
+                    ) : (
+                        meetings.map((m) => (
+                            <Card key={m.id} className="glass-card border-border/50 hover:border-primary/30 transition-all group">
+                                <CardContent className="p-5 flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-black text-xs shrink-0">
+                                            {new Date(m.meeting_date).getDate()}<br />
+                                            {new Date(m.meeting_date).toLocaleString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '')}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-700">{m.theme || "Reunião de Célula"}</p>
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <span className="text-[10px] bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-full font-bold">
+                                                    {m.meeting_attendance.filter(a => a.present).length} PRESENTES
+                                                </span>
+                                                <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-medium">
+                                                    <Star className="h-3 w-3 text-amber-400 fill-amber-400" /> {m.gods_presence || 0}/5
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Link href={`/celulas/${cellId}/reuniao?edit=${m.id}`}>
+                                            <Button variant="outline" size="sm" className="rounded-xl h-9 text-[11px] font-bold border-slate-200 text-slate-500 hover:text-primary hover:border-primary/50">
+                                                Editar Relatório
+                                            </Button>
+                                        </Link>
+                                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-300 group-hover:text-primary">
+                                            <ArrowRightLeft className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
+                </div>
+            </TabsContent>
 
             {/* Visitors Follow-up Tab */}
             {/* ... lines 257-291 ... */}
@@ -170,15 +267,76 @@ export function CellDetailTabs({
             {/* ... lines 294-357 ... */}
 
             {/* Multiplication Tab */}
-            {/* ... lines 360-436 ... */}
+            <TabsContent value="multiplicacao" className="mt-4 space-y-4">
+                <Card className="glass-card border-border/50 overflow-hidden">
+                    <CardHeader className="bg-indigo-500/5 pb-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <Zap className="h-5 w-5 text-indigo-500" /> Planejamento de Multiplicação
+                                </CardTitle>
+                                <CardDescription>Siga os 4 passos para planejar o crescimento do grupo</CardDescription>
+                            </div>
+                            <Badge className="bg-indigo-500">PASSO 1 DE 4</Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        {/* Step 1: Strategy */}
+                        <div className="p-6 space-y-6">
+                            <div className="space-y-4">
+                                <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider">1. Qual a Estratégia?</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="p-4 rounded-2xl border-2 border-indigo-500 bg-indigo-50/50 cursor-pointer">
+                                        <p className="font-bold text-indigo-700 text-sm">Divisão Simétrica</p>
+                                        <p className="text-[10px] text-indigo-600/70 mt-1">O grupo se divide ao meio, gerando duas novas células equilibradas.</p>
+                                    </div>
+                                    <div className="p-4 rounded-2xl border-2 border-slate-100 hover:border-indigo-200 transition-colors cursor-pointer">
+                                        <p className="font-bold text-slate-600 text-sm">Ninho (Célula Mãe/Filha)</p>
+                                        <p className="text-[10px] text-slate-400 mt-1">Um grupo menor sai para formar a nova célula, mantendo a base.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 pt-4 border-t border-border/30">
+                                <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider">2. Novos Líderes</h4>
+                                <div className="space-y-3">
+                                    <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Selecione quem assumirá o novo grupo</Label>
+                                    <Select>
+                                        <SelectTrigger className="bg-secondary/50 border-none rounded-xl">
+                                            <SelectValue placeholder="Selecione um líder em treinamento" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {members.filter(m => m.role !== 'leader').map(m => (
+                                                <SelectItem key={m.id} value={m.id}>{m.person?.full_name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end pt-4">
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 rounded-xl px-8 font-bold gap-2">
+                                    Próximo Passo <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-4 gap-2 px-2">
+                    {[1, 2, 3, 4].map(s => (
+                        <div key={s} className={cn("h-1.5 rounded-full", s === 1 ? "bg-indigo-500" : "bg-slate-100")} />
+                    ))}
+                </div>
+            </TabsContent>
 
             {/* Indicadores Tab */}
-            <TabsContent value="indicadores" className="mt-4 space-y-4">
+            <TabsContent value="indicadores" className="mt-4 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card className="glass-card border-border/50">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-indigo-500" /> Presença Média
+                                <Clock className="h-4 w-4 text-indigo-500" /> Presença Média (Últimas 6)
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="h-40 flex items-end gap-1.5 px-4 pb-4">
@@ -195,23 +353,74 @@ export function CellDetailTabs({
                     <Card className="glass-card border-border/50">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                <BookOpen className="h-4 w-4 text-emerald-500" /> Conclusão de Cursos
+                                <BookOpen className="h-4 w-4 text-emerald-500" /> Saúde do Grupo
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex justify-between items-center text-xs">
-                                <span className="text-muted-foreground">Membros Formados</span>
-                                <span className="font-bold">8/12</span>
+                                <span className="text-muted-foreground">Índice de Discipulado</span>
+                                <span className="font-bold">75%</span>
                             </div>
                             <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: "66%" }} />
+                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: "75%" }} />
                             </div>
-                            <p className="text-[10px] text-muted-foreground italic">
-                                * A meta é ter 100% dos membros fixos formados no curso de Liderança.
-                            </p>
+                            <div className="pt-2 grid grid-cols-2 gap-2">
+                                <div className="p-2 rounded-lg bg-emerald-50 text-[10px] text-emerald-700 font-bold text-center">3 MEMBROS EM L2</div>
+                                <div className="p-2 rounded-lg bg-blue-50 text-[10px] text-blue-700 font-bold text-center">5 MEMBROS EM L1</div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
+
+                <Card className="glass-card border-border/50">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-bold">📚 Progresso de Cursos (Audit Parity)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-border/30 bg-secondary/10">
+                                        <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-400">Pessoa</th>
+                                        <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-400">Curso</th>
+                                        {[1, 2, 3, 4, 5, 6, 7].map(l => (
+                                            <th key={l} className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-400 text-center">L{l}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {members.slice(0, 5).map((m, i) => (
+                                        <tr key={m.id} className="border-b border-border/10 last:border-none hover:bg-secondary/5 transition-colors">
+                                            <td className="p-4 py-3">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar className="h-7 w-7 border border-white shadow-sm">
+                                                        <AvatarFallback className="text-[10px] bg-slate-100">{m.person?.full_name[0]}</AvatarFallback>
+                                                    </Avatar>
+                                                    <span className="text-xs font-bold text-slate-600 truncate max-w-[120px]">{m.person?.full_name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Badge variant="outline" className="text-[9px] h-5 bg-indigo-50/50 text-indigo-600 border-indigo-100">
+                                                    {i % 2 === 0 ? "CRESÇA 1" : "LIDERE 2"}
+                                                </Badge>
+                                            </td>
+                                            {[1, 2, 3, 4, 5, 6, 7].map(l => (
+                                                <td key={l} className="p-4 text-center">
+                                                    <div className={cn(
+                                                        "h-4 w-4 rounded-full mx-auto flex items-center justify-center",
+                                                        l <= (i + 3) ? "bg-emerald-500 text-white" : "bg-slate-100"
+                                                    )}>
+                                                        {l <= (i + 3) && <CheckCircle2 className="h-2.5 w-2.5" />}
+                                                    </div>
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </CardContent>
+                </Card>
             </TabsContent>
 
             {/* Ex-participantes Tab */}
@@ -267,30 +476,60 @@ export function CellDetailTabs({
                 </Card>
             </TabsContent>
 
-            {/* Perfil/Config Tab */}
+            {/* Profile Tab */}
             <TabsContent value="config" className="mt-4 space-y-4">
                 <Card className="glass-card border-border/50">
-                    <CardContent className="p-6 space-y-6">
-                        <div className="space-y-4">
-                            <h4 className="text-sm font-bold text-slate-900">Configurações do Grupo</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Lote/Vaga Máxima</label>
-                                    <Input defaultValue={maxParticipants} type="number" className="rounded-xl border-slate-200" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Privacidade</label>
-                                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                        <Checkbox defaultChecked id="public" />
-                                        <label htmlFor="public" className="text-xs font-semibold text-slate-600">Visível no Mapa Público</label>
-                                    </div>
+                    <CardHeader>
+                        <CardTitle className="text-lg font-bold">Informações Básicas da Célula</CardTitle>
+                        <CardDescription>Dados públicos e configurações de funcionamento</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Nome da Célula</Label>
+                                <Input defaultValue={membersCount > 0 ? members[0]?.role : ""} className="bg-secondary border-none h-11 rounded-xl" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Privacidade</Label>
+                                <div className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl border border-border/20 h-11">
+                                    <Checkbox defaultChecked id="public-map" />
+                                    <label htmlFor="public-map" className="text-xs font-semibold text-slate-600">Visível no Mapa Público</label>
                                 </div>
                             </div>
-                            <div className="pt-4 flex justify-end">
-                                <Button className="rounded-xl bg-indigo-600 text-white font-bold h-11 px-8 shadow-md">
-                                    Salvar Alterações
-                                </Button>
+                        </div>
+
+                        <div className="grid gap-6 md:grid-cols-3 pt-4 border-t border-border/30">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Lote/Vaga Máxima</Label>
+                                <Input defaultValue={maxParticipants} type="number" className="bg-secondary border-none h-11 rounded-xl" />
                             </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Dia da Semana</Label>
+                                <Select defaultValue="5">
+                                    <SelectTrigger className="bg-secondary border-none h-11 rounded-xl">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="1">Segunda</SelectItem>
+                                        <SelectItem value="2">Terça</SelectItem>
+                                        <SelectItem value="3">Quarta</SelectItem>
+                                        <SelectItem value="4">Quinta</SelectItem>
+                                        <SelectItem value="5">Sexta</SelectItem>
+                                        <SelectItem value="6">Sábado</SelectItem>
+                                        <SelectItem value="0">Domingo</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Horário</Label>
+                                <Input type="time" defaultValue="20:00" className="bg-secondary border-none h-11 rounded-xl" />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end pt-6">
+                            <Button className="bg-indigo-600 hover:bg-indigo-700 font-bold px-10 h-11 rounded-xl shadow-lg shadow-indigo-200">
+                                Salvar Configurações
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>

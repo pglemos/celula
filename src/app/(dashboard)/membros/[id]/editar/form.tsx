@@ -121,6 +121,60 @@ export default function EditarMembroForm({ member }: { member: any }) {
                                     </Select>
                                 </div>
                             </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2 pt-4 border-t border-border/30">
+                                <div className="space-y-2">
+                                    <Label htmlFor="cpf">CPF</Label>
+                                    <Input id="cpf" name="cpf" defaultValue={member.cpf || ""} placeholder="000.000.000-00" className="bg-secondary border-none" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="rg">RG / Identidade</Label>
+                                    <Input id="rg" name="rg" defaultValue={member.rg || ""} className="bg-secondary border-none" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="glass-card md:col-span-2">
+                        <CardHeader>
+                            <CardTitle className="text-lg">Dados Sociais e Profissionais</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="occupation">Profissão</Label>
+                                    <Input id="occupation" name="occupation" defaultValue={member.occupation || ""} className="bg-secondary border-none" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="education_level">Escolaridade</Label>
+                                    <Select name="education_level" defaultValue={member.education_level || undefined}>
+                                        <SelectTrigger className="bg-secondary border-none">
+                                            <SelectValue placeholder="Selecione" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="fundamental">Fundamental</SelectItem>
+                                            <SelectItem value="medio">Médio</SelectItem>
+                                            <SelectItem value="superior">Superior</SelectItem>
+                                            <SelectItem value="pos">Pós / MBA / Mestre</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-3 pt-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="instagram">Instagram</Label>
+                                    <Input id="instagram" name="instagram" defaultValue={member.instagram || ""} placeholder="@usuario" className="bg-secondary border-none" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="linkedin">LinkedIn URL</Label>
+                                    <Input id="linkedin" name="linkedin" defaultValue={member.linkedin || ""} className="bg-secondary border-none" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="facebook">Facebook</Label>
+                                    <Input id="facebook" name="facebook" defaultValue={member.facebook || ""} className="bg-secondary border-none" />
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -188,6 +242,21 @@ export default function EditarMembroForm({ member }: { member: any }) {
                                             <SelectItem value="visitor">Visitante</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="baptism_date">Data de Batismo</Label>
+                                    <Input id="baptism_date" name="baptism_date" type="date" defaultValue={member.baptism_date ? member.baptism_date.split('T')[0] : ""} className="bg-secondary border-none" />
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="converted_at">Data de Conversão</Label>
+                                    <Input id="converted_at" name="converted_at" type="date" defaultValue={member.converted_at ? member.converted_at.split('T')[0] : ""} className="bg-secondary border-none" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="origin_church">Igreja de Origem</Label>
+                                    <Input id="origin_church" name="origin_church" defaultValue={member.origin_church || ""} className="bg-secondary border-none" />
                                 </div>
                             </div>
 

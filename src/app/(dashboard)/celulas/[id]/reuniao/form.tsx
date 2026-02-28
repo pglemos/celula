@@ -33,6 +33,9 @@ export function MeetingForm({ cellId, cellName, leaderId, members }: MeetingForm
     const [error, setError] = useState<string | null>(null);
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [isOffline, setIsOffline] = useState(false);
+    const [ministranteId, setMinistranteId] = useState("");
+    const [estudoNumber, setEstudoNumber] = useState<number | null>(null);
+    const [isOnlineMeeting, setIsOnlineMeeting] = useState(false);
 
     useEffect(() => {
         setIsOffline(!navigator.onLine);
@@ -179,6 +182,54 @@ export function MeetingForm({ cellId, cellName, leaderId, members }: MeetingForm
                 </div>
             </div>
 
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card className="glass-card border-border/50">
+                    <CardHeader className="pb-3"><CardTitle className="text-sm font-bold">👤 Ministrante da Palavra</CardTitle></CardHeader>
+                    <CardContent>
+                        <select
+                            value={ministranteId}
+                            onChange={(e) => setMinistranteId(e.target.value)}
+                            className="w-full h-11 rounded-xl bg-secondary/20 border-none px-4 text-sm font-medium focus:ring-2 focus:ring-primary"
+                        >
+                            <option value="">Selecione quem pregou...</option>
+                            {members.map(m => (
+                                <option key={m.id} value={m.id}>{m.full_name}</option>
+                            ))}
+                        </select>
+                    </CardContent>
+                </Card>
+
+                <Card className="glass-card border-border/50">
+                    <CardHeader className="pb-3"><CardTitle className="text-sm font-bold">🌐 Tipo de Reunião</CardTitle></CardHeader>
+                    <CardContent className="flex items-center justify-between p-4 bg-secondary/10 rounded-xl">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Reunião Online?</span>
+                        <Checkbox checked={isOnlineMeeting} onCheckedChange={(val) => setIsOnlineMeeting(!!val)} className="h-6 w-6" />
+                    </CardContent>
+                </Card>
+            </div>
+
+            <Card className="glass-card border-border/50">
+                <CardHeader className="pb-3"><CardTitle className="text-sm font-bold">📖 Qual estudo foi dado? (Lições 1 a 7)</CardTitle></CardHeader>
+                <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                        {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                            <button
+                                key={num}
+                                onClick={() => setEstudoNumber(num)}
+                                className={cn(
+                                    "h-12 w-12 rounded-xl border-2 transition-all font-black text-lg",
+                                    estudoNumber === num
+                                        ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                                        : "bg-secondary/20 border-transparent text-muted-foreground hover:bg-secondary/40"
+                                )}
+                            >
+                                {num}
+                            </button>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
             {error && (
                 <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">{error}</div>
             )}
@@ -242,8 +293,15 @@ export function MeetingForm({ cellId, cellName, leaderId, members }: MeetingForm
                     <CardContent>
                         <div className="flex justify-between px-2">
                             {[1, 2, 3, 4, 5].map((rating) => (
-                                <button key={rating} onClick={() => setGodsPresence(rating)} className="transition-transform hover:scale-125">
-                                    <Star className={cn("h-8 w-8 transition-colors", rating <= godsPresence ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20")} />
+                                <button key={rating} onClick={() => setGodsPresence(rating)} className="transition-transform hover:scale-125 flex flex-col items-center gap-1">
+                                    <span className={cn("text-3xl grayscale", rating <= godsPresence && "grayscale-0 animate-bounce")}>
+                                        {rating === 1 && "☁️"}
+                                        {rating === 2 && "🌤️"}
+                                        {rating === 3 && "☀️"}
+                                        {rating === 4 && "🔥"}
+                                        {rating === 5 && "🙌"}
+                                    </span>
+                                    <Star className={cn("h-4 w-4 transition-colors", rating <= godsPresence ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20")} />
                                 </button>
                             ))}
                         </div>
