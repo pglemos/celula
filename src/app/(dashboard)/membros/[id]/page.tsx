@@ -78,12 +78,42 @@ export default async function MemberDetailPage({
                     <TabsTrigger value="celulas">Células</TabsTrigger>
                     <TabsTrigger value="dados">Dados Completos</TabsTrigger>
                 </TabsList>
-                <TabsContent value="envolvimento" className="mt-4">
-                    <Card className="glass-card border-border/50">
-                        <CardContent className="p-6 text-center text-muted-foreground text-sm">
-                            Timeline de envolvimento será gerada automaticamente com presenças, cursos e contribuições.
-                        </CardContent>
-                    </Card>
+                <TabsContent value="envolvimento" className="mt-4 space-y-4">
+                    {member.meeting_attendance && member.meeting_attendance.length > 0 ? (
+                        <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border/40 before:to-transparent pt-2">
+                            {member.meeting_attendance.map((att: any) => {
+                                const meetingDate = new Date(att.cell_meetings?.meeting_date);
+                                const isPresent = att.present;
+                                return (
+                                    <div key={att.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-primary/20 bg-background shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                                            {isPresent ? <CircleDot className="h-4 w-4 text-primary" /> : <div className="h-2 w-2 rounded-full bg-destructive/50" />}
+                                        </div>
+                                        <Card className="glass-card md:w-[calc(50%-2.5rem)] p-4 border-border/50">
+                                            <div className="flex flex-col justify-between h-full">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="font-semibold text-sm">{att.cell_meetings?.cells?.name || "Reunião de Célula"}</span>
+                                                    <span className="text-xs text-muted-foreground">{meetingDate.toLocaleDateString("pt-BR")}</span>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Status: {isPresent ? <span className="text-primary font-medium">Presente</span> : <span className="text-destructive font-medium">Ausente</span>}
+                                                </p>
+                                                {att.cell_meetings?.theme && (
+                                                    <p className="text-xs text-muted-foreground mt-1">Tema: {att.cell_meetings.theme}</p>
+                                                )}
+                                            </div>
+                                        </Card>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <Card className="glass-card border-border/50">
+                            <CardContent className="p-6 text-center text-muted-foreground text-sm">
+                                Nenhuma atividade ou presença registrada ainda.
+                            </CardContent>
+                        </Card>
+                    )}
                 </TabsContent>
                 <TabsContent value="celulas" className="mt-4 space-y-3">
                     {member.cell_members && member.cell_members.length > 0 ? (

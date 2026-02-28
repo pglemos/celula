@@ -124,3 +124,29 @@ export async function getDashboardStats() {
         totalDecisions,
     };
 }
+
+export async function createSupervision(formData: FormData) {
+    const supabase = await createClient();
+
+    const supervision = {
+        tenant_id: TENANT_ID,
+        name: formData.get("name") as string,
+        supervisor_id: formData.get("supervisor_id") as string,
+        parent_id: (formData.get("parent_id") as string) || null,
+        level: parseInt(formData.get("level") as string) || 1,
+    };
+
+    const { data, error } = await supabase
+        .from("supervisions")
+        .insert(supervision)
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    // Using import for revalidatePath at the top might be needed, I'll let TS handle or I'll add the import
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/supervisao");
+
+    return data;
+}

@@ -62,6 +62,26 @@ const navigation = [
         icon: GraduationCap,
     },
     {
+        label: "Financeiro",
+        href: "/contribuicoes",
+        icon: HandCoins,
+    },
+    {
+        label: "Consolidação",
+        href: "/consolidacao",
+        icon: Heart,
+    },
+    {
+        label: "Eventos",
+        href: "/eventos",
+        icon: CalendarDays,
+    },
+    {
+        label: "Cursos",
+        href: "/cursos",
+        icon: GraduationCap,
+    },
+    {
         label: "Contribuições",
         href: "/contribuicoes",
         icon: HandCoins,

@@ -43,6 +43,17 @@ export async function getPersonById(id: string) {
         role,
         joined_at,
         cells (id, name, category)
+      ),
+      meeting_attendance (
+        id,
+        present,
+        meeting_id,
+        cell_meetings (
+          id,
+          meeting_date,
+          theme,
+          cells (name)
+        )
       )
     `)
         .eq("id", id)
