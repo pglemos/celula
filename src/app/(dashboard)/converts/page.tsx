@@ -5,8 +5,11 @@ import { RegisterDecisionModal } from "@/components/converts/register-decision-m
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertTriangle, Clock, Filter } from "lucide-react";
+import { AlertTriangle, Clock, Filter, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default async function ConvertsPage() {
     const [converts, funnelData] = await Promise.all([
@@ -61,8 +64,8 @@ export default async function ConvertsPage() {
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                                        <div 
-                                                            className={`h-full ${nc.evasion_risk_score > 0.6 ? 'bg-red-500' : nc.evasion_risk_score > 0.3 ? 'bg-amber-500' : 'bg-green-500'}`} 
+                                                        <div
+                                                            className={`h-full ${nc.evasion_risk_score > 0.6 ? 'bg-red-500' : nc.evasion_risk_score > 0.3 ? 'bg-amber-500' : 'bg-green-500'}`}
                                                             style={{ width: `${nc.evasion_risk_score * 100}%` }}
                                                         />
                                                     </div>
@@ -70,7 +73,12 @@ export default async function ConvertsPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Button variant="ghost" size="sm">Ver Detalhes</Button>
+                                                <Button variant="ghost" size="sm" asChild>
+                                                    <Link href={`/converts/${nc.id}`}>
+                                                        <Eye className="w-4 h-4 mr-2" />
+                                                        Ver Detalhes
+                                                    </Link>
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -82,7 +90,7 @@ export default async function ConvertsPage() {
 
                 <div className="space-y-6">
                     <ConsolidationFunnel data={funnelData} />
-                    
+
                     {converts.length > 0 && (
                         <Card className="border-none shadow-sm bg-amber-50/50 border border-amber-100">
                             <CardHeader className="pb-2">

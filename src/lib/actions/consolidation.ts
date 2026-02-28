@@ -26,6 +26,25 @@ export async function getNewConverts(statusFilter?: string) {
     return data || [];
 }
 
+export async function getConvertById(id: string) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from("new_converts")
+        .select(`
+            *,
+            consolidator:people!new_converts_consolidator_id_fkey(id, full_name),
+            decision_meeting:cell_meetings(id, meeting_date, cells(name)),
+            consolidation_events(*)
+        `)
+        .eq("id", id)
+        .eq("tenant_id", TENANT_ID)
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
 export async function getConsolidationStats() {
     const supabase = await createClient();
 
