@@ -19,12 +19,17 @@ export async function getCourses() {
 
     if (error) throw error;
 
-    return (data || []).map(course => ({
-        ...course,
-        enrolled_count: course.course_enrollments?.filter((r: any) => r.status === 'enrolled').length || 0,
-        completed_count: course.course_enrollments?.filter((r: any) => r.status === 'completed').length || 0,
-        classes_count: course.course_classes?.length || 0
-    }));
+    return (data || []).map(course => {
+        const enrollments = Array.isArray(course.course_enrollments) ? course.course_enrollments : [];
+        const classes = Array.isArray(course.course_classes) ? course.course_classes : [];
+
+        return {
+            ...course,
+            enrolled_count: enrollments.filter((r: any) => r.status === 'enrolled').length || 0,
+            completed_count: enrollments.filter((r: any) => r.status === 'completed').length || 0,
+            classes_count: classes.length || 0
+        };
+    });
 }
 
 export async function createCourse(formData: FormData) {

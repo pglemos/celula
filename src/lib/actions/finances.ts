@@ -22,7 +22,11 @@ export async function getContributions(startDate?: string, endDate?: string) {
     const { data, error } = await query;
     if (error) throw error;
 
-    return data || [];
+    return (data || []).map(item => ({
+        ...item,
+        amount: Number(item.amount) || 0,
+        person: item.person || null
+    }));
 }
 
 export async function getFinancialStats() {
@@ -49,7 +53,9 @@ export async function getFinancialStats() {
     };
 
     (currentMonthData || []).forEach(row => {
-        const amt = typeof row.amount === 'string' ? parseFloat(row.amount) : row.amount;
+        const amt = Number(row.amount);
+        if (isNaN(amt)) return;
+
         stats.total += amt;
         if (row.type === 'tithe') stats.tithes += amt;
         else if (row.type === 'offering') stats.offerings += amt;
