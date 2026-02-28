@@ -122,11 +122,13 @@
 
 /* Premium Glass/Bento Cards */
 .bento-card {
-  @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgb(0, 0, 0, 0.04)] transition-all duration-300;
+  @apply bg-white/70 backdrop-blur-xl border border-white/40 transition-all duration-300;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
 }
 
 .bento-card:hover {
-  @apply shadow-[0_12px_40px_rgb(0, 0, 0, 0.08)] -translate-y-[2px] border-white/60;
+  @apply -translate-y-[2px] border-white/60;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
 /* Solid accent cards for high visual impact */
@@ -147,11 +149,13 @@
 }
 
 .bento-card-dark {
-  @apply bg-[#121212] text-white border-[#2A2A2A] shadow-[0_8px_30px_rgb(0, 0, 0, 0.2)] transition-all duration-300;
+  @apply bg-[#121212] text-white border-[#2A2A2A] transition-all duration-300;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
 .bento-card-dark:hover {
-  @apply shadow-[0_12px_40px_rgb(0, 0, 0, 0.3)] -translate-y-[2px] border-[#3A3A3A];
+  @apply -translate-y-[2px] border-[#3A3A3A];
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
 }
 
 /* Animations */

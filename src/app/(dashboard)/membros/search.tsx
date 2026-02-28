@@ -151,7 +151,7 @@ export function MembrosSearch({
 
             {/* Filter Panel */}
             {showFilters && (
-                <Card className="glass-card border-border/50 animate-fade-in-up">
+                <Card className="bento-card animate-fade-in-up">
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-sm font-semibold">Filtros Avançados</h3>
@@ -224,11 +224,10 @@ export function MembrosSearch({
                 </p>
             </div>
 
-            {/* Results */}
             <div className="grid gap-3">
                 {filteredPeople.length === 0 ? (
-                    <Card className="glass-card border-border/50">
-                        <CardContent className="p-8 text-center text-muted-foreground">
+                    <Card className="bento-card">
+                        <CardContent className="p-12 text-center text-muted-foreground flex flex-col items-center justify-center min-h-[300px]">
                             <p>Nenhum membro encontrado.</p>
                             <Link href="/membros/novo">
                                 <Button className="mt-4 bg-primary hover:bg-primary/90" size="sm">
@@ -245,7 +244,7 @@ export function MembrosSearch({
                         return (
                             <Link href={`/membros/${member.id}`} key={member.id}>
                                 <Card
-                                    className="glass-card border-border/50 cursor-pointer transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 animate-fade-in-up"
+                                    className="bento-card cursor-pointer transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_12px_40px_var(--color-primary)] opacity-95 hover:opacity-100 animate-fade-in-up"
                                     style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
                                 >
                                     <CardContent className="flex items-center gap-4 p-4">

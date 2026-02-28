@@ -26,15 +26,17 @@ export default async function CursosPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {courses.length === 0 ? (
-                    <div className="col-span-full py-12 text-center text-muted-foreground bg-secondary/20 rounded-lg border border-border/50">
-                        Nenhum curso cadastrado ainda.
-                    </div>
+                    <Card className="bento-card col-span-full">
+                        <CardContent className="p-12 text-center text-muted-foreground flex flex-col items-center justify-center min-h-[300px]">
+                            <p>Nenhum curso cadastrado ainda.</p>
+                        </CardContent>
+                    </Card>
                 ) : (
                     courses.map((course) => {
                         const startDate = course.start_date ? new Date(course.start_date) : null;
 
                         return (
-                            <Card key={course.id} className={`glass-card flex flex-col ${course.status === 'completed' ? 'opacity-70' : ''}`}>
+                            <Card key={course.id} className={`bento-card flex flex-col transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_12px_40px_var(--color-primary)] ${course.status === 'completed' ? 'opacity-70' : 'opacity-95 hover:opacity-100'}`}>
                                 <CardHeader>
                                     <div className="flex justify-between items-start gap-4">
                                         <CardTitle className="text-xl line-clamp-2">{course.name}</CardTitle>

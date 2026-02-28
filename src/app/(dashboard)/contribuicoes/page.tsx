@@ -32,15 +32,22 @@ export default async function FinanceiroPage() {
                         Gestão simplificada de dízimos e ofertas (Mês Atual)
                     </p>
                 </div>
-                <Button asChild className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
-                    <Link href="/contribuicoes/nova">
-                        <Plus className="h-4 w-4" /> Nova Entrada
-                    </Link>
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button asChild variant="outline" className="gap-2">
+                        <Link href="/contribuicoes/relatorios">
+                            <Activity className="h-4 w-4" /> Relatórios
+                        </Link>
+                    </Button>
+                    <Button asChild className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+                        <Link href="/contribuicoes/nova">
+                            <Plus className="h-4 w-4" /> Nova Entrada
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">
-                <Card className="glass-card">
+                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Entradas Totais</CardTitle>
                         <Wallet className="h-4 w-4 text-emerald-500" />
@@ -50,7 +57,7 @@ export default async function FinanceiroPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="glass-card">
+                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Dízimos</CardTitle>
                         <ArrowUpRight className="h-4 w-4 text-emerald-500" />
@@ -60,7 +67,7 @@ export default async function FinanceiroPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="glass-card">
+                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Ofertas</CardTitle>
                         <Activity className="h-4 w-4 text-blue-500" />
@@ -70,7 +77,7 @@ export default async function FinanceiroPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="glass-card">
+                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Outros</CardTitle>
                         <ArrowDownRight className="h-4 w-4 text-muted-foreground" />
@@ -81,7 +88,7 @@ export default async function FinanceiroPage() {
                 </Card>
             </div>
 
-            <Card className="glass-card">
+            <Card className="bento-card">
                 <CardHeader>
                     <CardTitle className="text-lg">Últimas Entradas</CardTitle>
                 </CardHeader>

@@ -73,8 +73,8 @@ export function CelulasSearch({
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {cells.length === 0 ? (
-                    <Card className="glass-card border-border/50 sm:col-span-3">
-                        <CardContent className="p-8 text-center text-muted-foreground">
+                    <Card className="bento-card sm:col-span-3">
+                        <CardContent className="p-12 text-center text-muted-foreground flex flex-col items-center min-h-[300px] justify-center">
                             <p>Nenhuma célula encontrada.</p>
                         </CardContent>
                     </Card>
@@ -84,7 +84,7 @@ export function CelulasSearch({
                         return (
                             <Link href={`/celulas/${cell.id}`} key={cell.id}>
                                 <Card
-                                    className="glass-card border-border/50 cursor-pointer transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 animate-fade-in-up h-full"
+                                    className="bento-card cursor-pointer transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_12px_40px_var(--color-primary)] opacity-95 hover:opacity-100 animate-fade-in-up h-full"
                                     style={{ animationDelay: `${i * 80}ms` }}
                                 >
                                     <CardContent className="p-5 space-y-4">
