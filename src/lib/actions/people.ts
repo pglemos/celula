@@ -84,6 +84,8 @@ export async function createPerson(formData: FormData) {
         address_city: (formData.get("address_city") as string) || "Belo Horizonte",
         address_state: (formData.get("address_state") as string) || "MG",
         address_zip: (formData.get("address_zip") as string) || null,
+        latitude: formData.get("latitude") ? parseFloat(formData.get("latitude") as string) : null,
+        longitude: formData.get("longitude") ? parseFloat(formData.get("longitude") as string) : null,
         membership_status: (formData.get("membership_status") as string) || "visitor",
         lgpd_consent: formData.get("lgpd_consent") === "true",
         lgpd_consent_date: formData.get("lgpd_consent") === "true" ? new Date().toISOString() : null,
@@ -109,7 +111,7 @@ export async function updatePerson(id: string, formData: FormData) {
         "full_name", "preferred_name", "birth_date", "gender", "marital_status",
         "phone", "whatsapp", "email", "address_street", "address_number",
         "address_complement", "address_neighborhood", "address_city", "address_state",
-        "address_zip", "membership_status", "notes",
+        "address_zip", "membership_status", "notes", "latitude", "longitude",
     ];
 
     for (const field of fields) {

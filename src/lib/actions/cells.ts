@@ -78,6 +78,8 @@ export async function createCell(formData: FormData) {
         address_neighborhood: (formData.get("address_neighborhood") as string) || null,
         address_city: (formData.get("address_city") as string) || "Belo Horizonte",
         address_state: (formData.get("address_state") as string) || "MG",
+        latitude: formData.get("latitude") ? parseFloat(formData.get("latitude") as string) : null,
+        longitude: formData.get("longitude") ? parseFloat(formData.get("longitude") as string) : null,
     };
 
     const { data, error } = await supabase
@@ -88,6 +90,44 @@ export async function createCell(formData: FormData) {
 
     if (error) throw error;
     revalidatePath("/celulas");
+    return data;
+}
+
+export async function updateCell(id: string, formData: FormData) {
+    const supabase = await createClient();
+
+    const updates: Record<string, unknown> = {};
+    const fields = [
+        "name", "category", "leader_id", "co_leader_id", "host_id",
+        "trainee_id", "supervision_id", "meeting_day", "meeting_time",
+        "address_street", "address_number", "address_zip", "address_neighborhood",
+        "address_city", "address_state", "latitude", "longitude"
+    ];
+
+    for (const field of fields) {
+        const value = formData.get(field);
+        if (value !== null) {
+            if (field === "latitude" || field === "longitude") {
+                updates[field] = value ? parseFloat(value as string) : null;
+            } else {
+                updates[field] = value || null;
+            }
+        }
+    }
+
+    updates.updated_at = new Date().toISOString();
+
+    const { data, error } = await supabase
+        .from("cells")
+        .update(updates)
+        .eq("id", id)
+        .eq("tenant_id", TENANT_ID)
+        .select()
+        .single();
+
+    if (error) throw error;
+    revalidatePath("/celulas");
+    revalidatePath(`/celulas/${id}`);
     return data;
 }
 

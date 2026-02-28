@@ -1,3 +1,5 @@
+"use server";
+
 import { createClient } from "@/lib/supabase/server";
 import { TENANT_ID } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
@@ -17,7 +19,7 @@ export async function getAutomationRules() {
 export async function saveAutomationRule(formData: FormData) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) throw new Error("Não autenticado");
 
     const { data: person } = await supabase

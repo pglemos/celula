@@ -1,3 +1,5 @@
+"use server";
+
 import { createClient } from "@/lib/supabase/server";
 import { TENANT_ID } from "@/lib/constants";
 import { revalidatePath } from "next/cache";
@@ -5,7 +7,7 @@ import { revalidatePath } from "next/cache";
 export async function getWhatsAppSession() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) return null;
 
     const { data, error } = await supabase
@@ -22,7 +24,7 @@ export async function connectWhatsApp() {
     // Mock simulation of getting a QR Code from a gateway
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) throw new Error("Não autenticado");
 
     // In a real scenario, this would call an external API (Evolution, etc.)

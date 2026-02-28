@@ -16,13 +16,28 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { createPerson } from "@/lib/actions/people";
+import { MapPicker } from "@/components/ui/map-picker";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState as useReactState } from "react";
 
 export default function NovoMembroPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [address, setAddress] = useState("");
+    const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
+
+    // Watch address fields to trigger geocoding in MapPicker
+    const [street, setStreet] = useState("");
+    const [number, setNumber] = useState("");
+    const [neighborhood, setNeighborhood] = useState("");
+    const [zip, setZip] = useState("");
+
+    useEffect(() => {
+        const fullAddress = `${street}${number ? `, ${number}` : ""} - ${neighborhood}, Belo Horizonte - MG, ${zip}`;
+        setAddress(fullAddress);
+    }, [street, number, neighborhood, zip]);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -131,11 +146,11 @@ export default function NovoMembroPage() {
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-2 sm:col-span-2">
                                 <Label>Rua</Label>
-                                <Input name="address_street" placeholder="Rua, Avenida..." className="bg-secondary border-none" />
+                                <Input name="address_street" placeholder="Rua, Avenida..." className="bg-secondary border-none" onChange={(e) => setStreet(e.target.value)} />
                             </div>
                             <div className="space-y-2">
                                 <Label>Número</Label>
-                                <Input name="address_number" placeholder="123" className="bg-secondary border-none" />
+                                <Input name="address_number" placeholder="123" className="bg-secondary border-none" onChange={(e) => setNumber(e.target.value)} />
                             </div>
                             <div className="space-y-2">
                                 <Label>Complemento</Label>
@@ -143,14 +158,23 @@ export default function NovoMembroPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Bairro</Label>
-                                <Input name="address_neighborhood" placeholder="Bairro" className="bg-secondary border-none" />
+                                <Input name="address_neighborhood" placeholder="Bairro" className="bg-secondary border-none" onChange={(e) => setNeighborhood(e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label>CEP</Label>
-                                <Input name="address_zip" placeholder="30000-000" className="bg-secondary border-none" />
+                                <Input name="address_zip" placeholder="30000-000" className="bg-secondary border-none" onChange={(e) => setZip(e.target.value)} />
                             </div>
                             <input type="hidden" name="address_city" value="Belo Horizonte" />
                             <input type="hidden" name="address_state" value="MG" />
+                            <input type="hidden" name="latitude" value={location?.lat || ""} />
+                            <input type="hidden" name="longitude" value={location?.lng || ""} />
+
+                            <div className="sm:col-span-2 pt-2">
+                                <Label className="mb-3 block">Localização no Mapa</Label>
+                                <MapPicker
+                                    address={address}
+                                    onLocationSelect={(lat, lng) => setLocation({ lat, lng })}
+                                />
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

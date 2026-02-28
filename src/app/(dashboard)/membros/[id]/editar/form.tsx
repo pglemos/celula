@@ -11,11 +11,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updatePerson } from "@/lib/actions/people";
+import { MapPicker } from "@/components/ui/map-picker";
+import { useEffect, useState as useReactState } from "react";
 
 export default function EditarMembroForm({ member }: { member: any }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [location, setLocation] = useState<{ lat: number, lng: number } | null>(
+        member.latitude && member.longitude ? { lat: member.latitude, lng: member.longitude } : null
+    );
+    const [address, setAddress] = useState("");
+
+    // Watch address fields to trigger geocoding in MapPicker
+    const [street, setStreet] = useState(member.address_street || "");
+    const [number, setNumber] = useState(member.address_number || "");
+    const [neighborhood, setNeighborhood] = useState(member.address_neighborhood || "");
+    const [zip, setZip] = useState(member.address_zip || "");
+
+    useEffect(() => {
+        const fullAddress = `${street}${number ? `, ${number}` : ""} - ${neighborhood}, Belo Horizonte - MG, ${zip}`;
+        setAddress(fullAddress);
+    }, [street, number, neighborhood, zip]);
 
     async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
