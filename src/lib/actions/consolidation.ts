@@ -11,8 +11,8 @@ export async function getNewConverts(statusFilter?: string) {
         .from("new_converts")
         .select(`
             *,
-            consolidator:people!new_converts_consolidator_id_fkey(id, full_name),
-            decision_meeting:cell_meetings(id, meeting_date, cells(name))
+            person:people!new_converts_person_id_fkey(id, full_name, phone, address_neighborhood),
+            consolidator:people!new_converts_consolidator_id_fkey(id, full_name)
         `)
         .eq("tenant_id", TENANT_ID)
         .order("decision_date", { ascending: false });
@@ -33,8 +33,8 @@ export async function getConvertById(id: string) {
         .from("new_converts")
         .select(`
             *,
+            person:people!new_converts_person_id_fkey(id, full_name, phone, address_neighborhood, birth_date, gender),
             consolidator:people!new_converts_consolidator_id_fkey(id, full_name),
-            decision_meeting:cell_meetings(id, meeting_date, cells(name)),
             consolidation_events(*)
         `)
         .eq("id", id)
@@ -58,8 +58,8 @@ export async function getConsolidationStats() {
     const stats = {
         new: 0,
         contacted: 0,
-        in_cell: 0,
-        baptized: 0,
+        connected: 0,
+        integrated: 0,
         lost: 0
     };
 
@@ -84,18 +84,34 @@ export async function registerDecision(data: {
 }) {
     const supabase = await createClient();
 
+    // In this schema, new_converts might need a person_id. 
+    // If person doesn't exist, we might need to create them first or the table allows null/placeholder.
+    // Based on the schema view: person_id UUID NOT NULL REFERENCES people(id)
+    // So we MUST create the person first.
+
+    const { data: person, error: personError } = await supabase
+        .from("people")
+        .insert({
+            tenant_id: TENANT_ID,
+            full_name: data.fullName,
+            phone: data.phone,
+            address_neighborhood: data.neighborhood,
+            birth_date: data.birthDate,
+            gender: data.gender,
+            membership_status: "visitor"
+        })
+        .select()
+        .single();
+
+    if (personError) throw personError;
+
     const { data: newConvert, error } = await supabase
         .from("new_converts")
         .insert({
             tenant_id: TENANT_ID,
-            full_name: data.fullName,
-            phone: data.phone || null,
+            person_id: person.id,
             decision_date: data.decisionDate,
-            decision_type: data.decisionType,
-            neighborhood: data.neighborhood || null,
-            birth_date: data.birthDate || null,
-            gender: data.gender || null,
-            context: data.context || null,
+            decision_context: data.decisionType,
             status: "new"
         })
         .select()
@@ -160,14 +176,34 @@ export async function getOverdueConsolidations() {
 export async function getFunnelData() {
     const supabase = await createClient();
 
-    const { data, error } = await supabase
-        .from("v_consolidation_funnel")
-        .select("*")
-        .eq("tenant_id", TENANT_ID)
-        .single();
+    const { data: converts, error } = await supabase
+        .from("new_converts")
+        .select("status")
+        .eq("tenant_id", TENANT_ID);
 
     if (error) throw error;
-    return data;
+
+    const stats = {
+        new: 0,
+        contacted: 0,
+        connected: 0,
+        integrated: 0,
+        lost: 0
+    };
+
+    (converts || []).forEach((c: any) => {
+        if (c.status in stats) stats[c.status as keyof typeof stats]++;
+    });
+
+    return {
+        tenant_id: TENANT_ID,
+        total_converts: converts?.length || 0,
+        total_decisions: converts?.length || 0,
+        total_contacted: stats.contacted + stats.connected + stats.integrated,
+        total_in_cell: stats.connected + stats.integrated,
+        total_integrated: stats.integrated,
+        ...stats
+    };
 }
 
 export async function predictEvasionRisk(convertId: string) {
@@ -184,7 +220,7 @@ export async function predictEvasionRisk(convertId: string) {
 
     let riskScore = 0;
     const now = new Date();
-    const lastActivity = new Date(nc.last_activity_at);
+    const lastActivity = nc.last_activity_at ? new Date(nc.last_activity_at) : new Date(nc.created_at);
     const daysSinceLastActivity = (now.getTime() - lastActivity.getTime()) / (1000 * 3600 * 24);
 
     // Heuristics for evasion risk (RF-04.05)
@@ -213,10 +249,8 @@ export async function predictEvasionRisk(convertId: string) {
 export async function updateConvertStatus(id: string, newStatus: string) {
     const supabase = await createClient();
 
-    // Auto-update step dates based on status progress
     const updates: Record<string, any> = { status: newStatus };
-    if (newStatus === "contacted") updates.first_contact_date = new Date().toISOString();
-    if (newStatus === "in_cell") updates.cell_visit_date = new Date().toISOString();
+    if (newStatus === "contacted") updates.first_contact_at = new Date().toISOString();
 
     const { error } = await supabase
         .from("new_converts")
@@ -225,7 +259,7 @@ export async function updateConvertStatus(id: string, newStatus: string) {
         .eq("tenant_id", TENANT_ID);
 
     if (error) throw error;
-    revalidatePath("/consolidacao");
+    revalidatePath("/converts");
 }
 
 export async function updateConsolidator(convertId: string, consolidatorId: string | null) {
@@ -238,20 +272,32 @@ export async function updateConsolidator(convertId: string, consolidatorId: stri
         .eq("tenant_id", TENANT_ID);
 
     if (error) throw error;
-    revalidatePath("/consolidacao");
+    revalidatePath("/converts");
 }
 
 export async function createNewConvert(formData: FormData) {
     const supabase = await createClient();
 
+    // Since schema requires person_id, we need a person first
+    const { data: person, error: personError } = await supabase
+        .from("people")
+        .insert({
+            tenant_id: TENANT_ID,
+            full_name: formData.get("full_name") as string,
+            phone: (formData.get("phone") as string) || null,
+            membership_status: "visitor"
+        })
+        .select()
+        .single();
+
+    if (personError) throw personError;
+
     const data = {
         tenant_id: TENANT_ID,
-        full_name: formData.get("full_name") as string,
-        phone: (formData.get("phone") as string) || null,
-        decision_date: (formData.get("decision_date") as string) || new Date().toISOString(),
-        decision_type: (formData.get("decision_type") as string) || "visitor",
+        person_id: person.id,
+        decision_date: (formData.get("decision_date") as string) || new Date().toISOString().split('T')[0],
+        decision_context: (formData.get("decision_type") as string) || "visitor",
         consolidator_id: (formData.get("consolidator_id") as string) === "none" ? null : (formData.get("consolidator_id") as string),
-        notes: (formData.get("notes") as string) || null,
         status: "new"
     };
 
@@ -263,6 +309,6 @@ export async function createNewConvert(formData: FormData) {
 
     if (error) throw error;
 
-    revalidatePath("/consolidacao");
+    revalidatePath("/converts");
     return nc;
 }

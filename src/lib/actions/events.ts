@@ -17,11 +17,14 @@ export async function getEvents() {
 
     if (error) throw error;
 
-    return (data || []).map(event => ({
-        ...event,
-        registered_count: event.event_registrations?.filter((r: any) => r.status !== 'cancelled').length || 0,
-        attended_count: event.event_registrations?.filter((r: any) => r.status === 'attended').length || 0,
-    }));
+    return (data || []).map(event => {
+        const registrations = Array.isArray(event.event_registrations) ? event.event_registrations : [];
+        return {
+            ...event,
+            registered_count: registrations.filter((r: any) => r.status !== 'cancelled').length || 0,
+            attended_count: registrations.filter((r: any) => r.status === 'attended').length || 0,
+        };
+    });
 }
 
 export async function createEvent(formData: FormData) {

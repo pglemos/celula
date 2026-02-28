@@ -23,7 +23,7 @@ export default async function ConvertDetailPage({
 
     const decisionDate = new Date(convert.decision_date);
     const timeSinceDecision = formatDistanceToNow(decisionDate, { addSuffix: true, locale: ptBR });
-    
+
     const statusConfig = {
         new: { label: "Pendente", color: "bg-red-500", icon: <Clock className="w-4 h-4" /> },
         contacted: { label: "Contatado", color: "bg-amber-500", icon: <Phone className="w-4 h-4" /> },
@@ -44,7 +44,7 @@ export default async function ConvertDetailPage({
                 </Button>
                 <div>
                     <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold text-slate-900">{convert.full_name}</h1>
+                        <h1 className="text-2xl font-bold text-slate-900">{convert.person?.full_name}</h1>
                         <Badge className={`${currentStatus.color} text-white gap-1`}>
                             {currentStatus.icon}
                             {currentStatus.label}
@@ -66,19 +66,19 @@ export default async function ConvertDetailPage({
                                 <p className="text-xs text-slate-400 uppercase font-semibold">Telefone</p>
                                 <p className="text-slate-700 flex items-center gap-2">
                                     <Phone className="w-4 h-4 text-slate-400" />
-                                    {convert.phone || "Não informado"}
+                                    {convert.person?.phone || "Não informado"}
                                 </p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs text-slate-400 uppercase font-semibold">Bairro</p>
                                 <p className="text-slate-700 flex items-center gap-2">
                                     <MapPin className="w-4 h-4 text-slate-400" />
-                                    {convert.neighborhood || "Não informado"}
+                                    {convert.person?.address_neighborhood || "Não informado"}
                                 </p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs text-slate-400 uppercase font-semibold">Tipo de Decisão</p>
-                                <p className="text-slate-700 capitalize">{convert.decision_type || "Não informado"}</p>
+                                <p className="text-slate-700 capitalize">{convert.decision_context || "Não informado"}</p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs text-slate-400 uppercase font-semibold">Consolidador</p>
@@ -125,7 +125,7 @@ export default async function ConvertDetailPage({
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <Button className="w-full justify-start gap-2 bg-slate-900 hover:bg-slate-800" asChild>
-                                <a href={`https://wa.me/55${convert.phone?.replace(/\D/g, '')}`} target="_blank">
+                                <a href={`https://wa.me/55${convert.person?.phone?.replace(/\D/g, '')}`} target="_blank">
                                     <Phone className="w-4 h-4" />
                                     Enviar WhatsApp
                                 </a>

@@ -52,7 +52,7 @@ export default async function ConvertsPage() {
                                 <TableBody>
                                     {converts.map((nc: any) => (
                                         <TableRow key={nc.id} className="hover:bg-slate-50/80 transition-colors">
-                                            <TableCell className="font-medium">{nc.full_name}</TableCell>
+                                            <TableCell className="font-medium">{nc.person?.full_name}</TableCell>
                                             <TableCell>
                                                 <Badge variant={nc.status === 'new' ? 'destructive' : 'secondary'} className="capitalize">
                                                     {nc.status === 'new' ? 'Pendente' : nc.status}
@@ -103,7 +103,7 @@ export default async function ConvertsPage() {
                                 <div className="space-y-2">
                                     {converts.filter((nc: any) => nc.status === 'new').slice(0, 3).map((nc: any) => (
                                         <div key={nc.id} className="text-xs p-2 bg-white rounded border border-amber-100 flex justify-between items-center">
-                                            <span>{nc.full_name} aguarda contato</span>
+                                            <span>{nc.person?.full_name} aguarda contato</span>
                                             <Clock className="w-3 h-3 text-slate-400" />
                                         </div>
                                     ))}
