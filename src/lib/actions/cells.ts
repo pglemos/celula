@@ -67,9 +67,14 @@ export async function createCell(formData: FormData) {
         category: (formData.get("category") as string) || null,
         leader_id: formData.get("leader_id") as string,
         co_leader_id: (formData.get("co_leader_id") as string) || null,
+        host_id: (formData.get("host_id") as string) || null,
+        trainee_id: (formData.get("trainee_id") as string) || null,
         supervision_id: (formData.get("supervision_id") as string) || null,
         meeting_day: (formData.get("meeting_day") as string) || null,
         meeting_time: (formData.get("meeting_time") as string) || null,
+        address_street: (formData.get("address_street") as string) || null,
+        address_number: (formData.get("address_number") as string) || null,
+        address_zip: (formData.get("address_zip") as string) || null,
         address_neighborhood: (formData.get("address_neighborhood") as string) || null,
         address_city: (formData.get("address_city") as string) || "Belo Horizonte",
         address_state: (formData.get("address_state") as string) || "MG",
@@ -123,6 +128,7 @@ export async function submitMeeting(formData: FormData) {
             meeting_date: formData.get("meeting_date") as string,
             gods_presence: parseInt(formData.get("gods_presence") as string) || null,
             decisions_for_christ: parseInt(formData.get("decisions_for_christ") as string) || 0,
+            offering_amount: parseFloat(formData.get("offering_amount") as string) || 0,
             theme: (formData.get("theme") as string) || null,
             observations: (formData.get("observations") as string) || null,
             submitted_by: submittedBy,
@@ -139,6 +145,9 @@ export async function submitMeeting(formData: FormData) {
             person_id: string;
             present: boolean;
             is_visitor?: boolean;
+            checkin_at?: string;
+            checkin_lat?: number;
+            checkin_lng?: number;
         }>;
 
         const attendanceRecords = attendance.map((a) => ({
@@ -146,6 +155,9 @@ export async function submitMeeting(formData: FormData) {
             person_id: a.person_id,
             present: a.present,
             is_visitor: a.is_visitor || false,
+            checkin_at: a.checkin_at || null,
+            checkin_lat: a.checkin_lat || null,
+            checkin_lng: a.checkin_lng || null,
         }));
 
         if (attendanceRecords.length > 0) {
@@ -154,6 +166,19 @@ export async function submitMeeting(formData: FormData) {
                 .insert(attendanceRecords);
 
             if (attendanceError) throw attendanceError;
+
+            // Criar follow-ups para visitantes (RF-02.04)
+            const visitorsToFollowUp = attendance.filter(a => a.is_visitor);
+            if (visitorsToFollowUp.length > 0 && meeting) {
+                const followUpRecords = visitorsToFollowUp.map(v => ({
+                    person_id: v.person_id,
+                    meeting_id: meeting.id,
+                    status: 'pending',
+                    next_contact_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // +2 dias
+                }));
+
+                await supabase.from("visitor_followups").insert(followUpRecords);
+            }
         }
     }
 
@@ -194,4 +219,31 @@ export async function getCellsCount() {
 
     if (error) throw error;
     return count || 0;
+}
+
+export async function getTraineeCompetencies(personId: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("trainee_competencies")
+        .select("*")
+        .eq("person_id", personId);
+
+    if (error) throw error;
+    return data || [];
+}
+
+export async function toggleTraineeCompetency(personId: string, competencyKey: string, isCompleted: boolean) {
+    const supabase = await createClient();
+    const { error } = await supabase
+        .from("trainee_competencies")
+        .upsert({
+            person_id: personId,
+            competency_key: competencyKey,
+            is_completed: isCompleted,
+            completed_at: isCompleted ? new Date().toISOString() : null,
+            tenant_id: TENANT_ID
+        }, { onConflict: 'person_id,competency_key' });
+
+    if (error) throw error;
+    revalidatePath(`/celulas`);
 }

@@ -1,233 +1,310 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { TENANT_ID } from "@/lib/constants";
-import { revalidatePath } from "next/cache";
+import { createClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 
-// ============================================
-// SUPERVISION VISITS
-// ============================================
+/**
+ * RF-03.01: Organograma hierárquico ilimitado (drag-and-drop)
+ * Updates the parent supervision of a supervision node.
+ */
+export async function updateSupervisionHierarchy(id: string, newParentId: string | null) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from('supervisions')
+        .update({
+            parent_id: newParentId,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+    if (error) throw new Error(error.message);
+
+    revalidatePath('/(dashboard)/supervisao');
+    return data;
+}
+
+/**
+ * RF-03.04: Registro de visitas de supervisão com checklist
+ */
+export async function createSupervisionVisit(visit: {
+    supervision_id: string;
+    cell_id: string;
+    visitor_id: string;
+    visit_date: string;
+    checklist: any[];
+    observations?: string;
+}) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from('supervision_visits')
+        .insert([visit]);
+
+    if (error) throw new Error(error.message);
+
+    revalidatePath('/(dashboard)/supervisao');
+    return data;
+}
+
+/**
+ * RF-03.05: Registro de reuniões de supervisão com pauta e presença
+ */
+export async function createSupervisionMeeting(meeting: {
+    supervision_id: string;
+    tenant_id: string;
+    meeting_date: string;
+    agenda: string;
+    observations: string;
+    attendance: { person_id: string; present: boolean }[];
+}) {
+    const supabase = await createClient();
+
+    try {
+        // 1. Create meeting
+        const { data: meetingData, error: meetingError } = await supabase
+            .from('supervision_meetings')
+            .insert([{
+                supervision_id: meeting.supervision_id,
+                tenant_id: meeting.tenant_id,
+                meeting_date: meeting.meeting_date,
+                agenda: meeting.agenda,
+                observations: meeting.observations
+            }])
+            .select()
+            .single();
+
+        if (meetingError) throw new Error(`Erro ao criar reunião: ${meetingError.message}`);
+
+        // 2. Add attendance
+        if (meeting.attendance && meeting.attendance.length > 0) {
+            const attendanceRecords = meeting.attendance.map(a => ({
+                meeting_id: meetingData.id,
+                person_id: a.person_id,
+                present: a.present
+            }));
+
+            const { error: attendanceError } = await supabase
+                .from('supervision_meeting_attendance')
+                .insert(attendanceRecords);
+
+            if (attendanceError) {
+                // Rollback meeting creation if attendance fails (simulated)
+                await supabase.from('supervision_meetings').delete().eq('id', meetingData.id);
+                throw new Error(`Erro ao registrar presença: ${attendanceError.message}`);
+            }
+        }
+
+        revalidatePath('/(dashboard)/supervisao');
+        return { success: true, data: meetingData };
+    } catch (error: any) {
+        console.error('Supervision Meeting Error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * RF-03.03: Alertas automáticos
+ * Logic to detect leaders who didn't fill reports or cells with attendance drop.
+ */
+export async function generateSupervisionAlerts(tenantId: string) {
+    const supabase = await createClient();
+
+    // 1. Get cells and their last meeting
+    const { data: cells, error } = await supabase
+        .from('cells')
+        .select('id, name, supervision_id, leader_id')
+        .eq('tenant_id', tenantId);
+
+    if (error) return;
+
+    const alerts = [];
+    const today = new Date();
+    const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    for (const cell of cells) {
+        // Check if report was filled last week
+        const { data: lastMeeting } = await supabase
+            .from('cell_meetings')
+            .select('meeting_date')
+            .eq('cell_id', cell.id)
+            .gte('meeting_date', lastWeek.toISOString())
+            .single();
+
+        if (!lastMeeting) {
+            alerts.push({
+                tenant_id: tenantId,
+                cell_id: cell.id,
+                supervision_id: cell.supervision_id,
+                type: 'missing_report',
+                severity: 'high',
+                message: `Relatório não preenchido para a célula ${cell.name} na última semana.`
+            });
+        }
+
+        // Check for attendance drop (compare last 2 meetings)
+        const { data: meetings } = await supabase
+            .from('cell_meetings')
+            .select('id, meeting_date')
+            .eq('cell_id', cell.id)
+            .order('meeting_date', { ascending: false })
+            .limit(2);
+
+        if (meetings && meetings.length === 2) {
+            const { count: currentAttendance } = await supabase
+                .from('meeting_attendance')
+                .select('*', { count: 'exact', head: true })
+                .eq('meeting_id', meetings[0].id)
+                .eq('present', true);
+
+            const { count: previousAttendance } = await supabase
+                .from('meeting_attendance')
+                .select('*', { count: 'exact', head: true })
+                .eq('meeting_id', meetings[1].id)
+                .eq('present', true);
+
+            if (currentAttendance !== null && previousAttendance !== null && currentAttendance < previousAttendance * 0.7) {
+                alerts.push({
+                    tenant_id: tenantId,
+                    cell_id: cell.id,
+                    supervision_id: cell.supervision_id,
+                    type: 'presence_drop',
+                    severity: 'medium',
+                    message: `Queda brusca de presença detectada na célula ${cell.name}.`
+                });
+            }
+        }
+    }
+
+    if (alerts.length > 0) {
+        await supabase.from('supervision_alerts').insert(alerts);
+    }
+}
+
+/**
+ * RF-03.02: Dashboard de supervisão com semáforo
+ */
+export async function getSupervisionStatus(supervisionId: string) {
+    const supabase = await createClient();
+
+    const { data: alerts } = await supabase
+        .from('supervision_alerts')
+        .select('severity')
+        .eq('supervision_id', supervisionId)
+        .eq('is_resolved', false);
+
+    if (!alerts || alerts.length === 0) return 'green';
+
+    const hasCritical = alerts.some(a => a.severity === 'critical' || a.severity === 'high');
+    if (hasCritical) return 'red';
+
+    return 'yellow';
+}
+
 export async function getSupervisionVisits(supervisionId: string) {
     const supabase = await createClient();
     const { data, error } = await supabase
-        .from("supervision_visits")
+        .from('supervision_visits')
         .select(`
             *,
-            cell:cells!supervision_visits_cell_id_fkey(id, name),
-            visitor:people!supervision_visits_visitor_id_fkey(id, full_name)
+            cells (id, name),
+            visitor:people (id, full_name)
         `)
-        .eq("supervision_id", supervisionId)
-        .eq("tenant_id", TENANT_ID)
-        .order("visit_date", { ascending: false })
-        .limit(20);
+        .eq('supervision_id', supervisionId)
+        .order('visit_date', { ascending: false });
 
     if (error) throw error;
     return data || [];
 }
 
-export async function createSupervisionVisit(formData: FormData) {
-    const supabase = await createClient();
-
-    const checklistRaw = formData.get("checklist") as string;
-    let checklist = {};
-    try {
-        checklist = JSON.parse(checklistRaw);
-    } catch {
-        checklist = {};
-    }
-
-    const visit = {
-        supervision_id: formData.get("supervision_id") as string,
-        cell_id: formData.get("cell_id") as string,
-        tenant_id: TENANT_ID,
-        visitor_id: formData.get("visitor_id") as string,
-        visit_date: (formData.get("visit_date") as string) || new Date().toISOString().split("T")[0],
-        checklist,
-        notes: (formData.get("notes") as string) || null,
-        rating: parseInt(formData.get("rating") as string) || null,
-    };
-
-    const { data, error } = await supabase
-        .from("supervision_visits")
-        .insert(visit)
-        .select()
-        .single();
-
-    if (error) throw error;
-    revalidatePath(`/supervisao/${visit.supervision_id}`);
-    return data;
-}
-
-// ============================================
-// SUPERVISION MEETINGS
-// ============================================
 export async function getSupervisionMeetings(supervisionId: string) {
     const supabase = await createClient();
     const { data, error } = await supabase
-        .from("supervision_meetings")
+        .from('supervision_meetings')
         .select(`
             *,
-            supervision_meeting_attendance (
+            attendance:supervision_meeting_attendance (
                 id,
                 present,
-                person:people!supervision_meeting_attendance_person_id_fkey(id, full_name)
+                person:people (id, full_name)
             )
         `)
-        .eq("supervision_id", supervisionId)
-        .eq("tenant_id", TENANT_ID)
-        .order("meeting_date", { ascending: false })
-        .limit(20);
+        .eq('supervision_id', supervisionId)
+        .order('meeting_date', { ascending: false });
 
     if (error) throw error;
     return data || [];
 }
 
-export async function createSupervisionMeeting(formData: FormData) {
-    const supabase = await createClient();
-
-    const meeting = {
-        supervision_id: formData.get("supervision_id") as string,
-        tenant_id: TENANT_ID,
-        meeting_date: (formData.get("meeting_date") as string) || new Date().toISOString().split("T")[0],
-        agenda: (formData.get("agenda") as string) || null,
-        minutes: (formData.get("minutes") as string) || null,
-    };
-
-    const { data, error } = await supabase
-        .from("supervision_meetings")
-        .insert(meeting)
-        .select()
-        .single();
-
-    if (error) throw error;
-    revalidatePath(`/supervisao/${meeting.supervision_id}`);
-    return data;
-}
-
-// ============================================
-// SUPERVISION DASHBOARD STATS
-// ============================================
 export async function getSupervisionDashboard(supervisionId: string) {
     const supabase = await createClient();
 
-    // Get cells for this supervision
+    // 1. Get cells under this supervision
     const { data: cells } = await supabase
-        .from("cells")
+        .from('cells')
         .select(`
-            id, name, status,
-            cell_members (id, person_id),
-            cell_meetings (
-                id, meeting_date,
-                meeting_attendance (id, present, is_visitor)
-            )
+            id, 
+            name,
+            cell_members(count),
+            cell_meetings(id, meeting_date, meeting_attendance(present))
         `)
-        .eq("supervision_id", supervisionId)
-        .eq("tenant_id", TENANT_ID);
+        .eq('supervision_id', supervisionId);
 
     if (!cells) return {
         totalCells: 0,
         totalMembers: 0,
         activeRate: 0,
         avgPresence: 0,
-        totalDecisions: 0,
-        cellStats: [],
+        cellStats: [] as any[]
     };
 
-    let totalMembers = 0;
-    let totalPresent = 0;
-    let totalAttendance = 0;
-    let activeCells = 0;
-
     const cellStats = cells.map(cell => {
-        const members = cell.cell_members?.length || 0;
-        totalMembers += members;
+        const members = (cell.cell_members as any)?.[0]?.count || 0;
+        const recentMeetings = (cell.cell_meetings as any[])?.sort((a, b) =>
+            new Date(b.meeting_date).getTime() - new Date(a.meeting_date).getTime()
+        ).slice(0, 4) || [];
 
-        const meetings = cell.cell_meetings || [];
-        const lastMeeting = meetings.length > 0 ? meetings[0] : null;
+        let totalPresent = 0;
+        let totalPossible = 0;
 
-        let cellPresent = 0;
-        let cellTotal = 0;
-        meetings.forEach((m: any) => {
-            const att = m.meeting_attendance || [];
-            cellTotal += att.length;
-            cellPresent += att.filter((a: any) => a.present).length;
+        recentMeetings.forEach(m => {
+            if (Array.isArray(m.meeting_attendance)) {
+                m.meeting_attendance.forEach((a: any) => {
+                    totalPossible++;
+                    if (a.present) totalPresent++;
+                });
+            }
         });
 
-        totalPresent += cellPresent;
-        totalAttendance += cellTotal;
-
-        if (lastMeeting) {
-            const daysSince = Math.floor(
-                (Date.now() - new Date(lastMeeting.meeting_date).getTime()) / (1000 * 60 * 60 * 24)
-            );
-            if (daysSince <= 14) activeCells++;
-        }
+        const cellAvgPresence = totalPossible > 0 ? Math.round((totalPresent / totalPossible) * 100) : 0;
+        const lastMeetingDate = recentMeetings[0]?.meeting_date || null;
 
         return {
             id: cell.id,
             name: cell.name,
             members,
-            avgPresence: cellTotal > 0 ? Math.round((cellPresent / cellTotal) * 100) : 0,
-            lastMeetingDate: lastMeeting?.meeting_date || null,
-            status: cell.status,
+            avgPresence: cellAvgPresence,
+            lastMeetingDate
         };
     });
 
+    const totalCells = cells.length;
+    const totalMembers = cellStats.reduce((acc, c) => acc + c.members, 0);
+    const avgPresence = cellStats.length > 0
+        ? Math.round(cellStats.reduce((acc, c) => acc + c.avgPresence, 0) / cellStats.length)
+        : 0;
+
+    // Active rate based on cells with meetings in last 15 days
+    const fifteenDaysAgo = new Date();
+    fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+    const activeCells = cellStats.filter(c => c.lastMeetingDate && new Date(c.lastMeetingDate) >= fifteenDaysAgo).length;
+    const activeRate = totalCells > 0 ? Math.round((activeCells / totalCells) * 100) : 0;
+
     return {
-        totalCells: cells.length,
+        totalCells,
         totalMembers,
-        activeRate: cells.length > 0 ? Math.round((activeCells / cells.length) * 100) : 0,
-        avgPresence: totalAttendance > 0 ? Math.round((totalPresent / totalAttendance) * 100) : 0,
-        totalDecisions: 0, // Can be extended
-        cellStats: cellStats.sort((a, b) => b.avgPresence - a.avgPresence),
+        activeRate,
+        avgPresence,
+        cellStats
     };
-}
-
-// ============================================
-// ALERTS
-// ============================================
-export async function getAlerts(limit = 10) {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-        .from("alerts")
-        .select("*")
-        .eq("tenant_id", TENANT_ID)
-        .eq("read", false)
-        .order("created_at", { ascending: false })
-        .limit(limit);
-
-    if (error) throw error;
-    return data || [];
-}
-
-export async function markAlertRead(alertId: string) {
-    const supabase = await createClient();
-    const { error } = await supabase
-        .from("alerts")
-        .update({ read: true })
-        .eq("id", alertId);
-
-    if (error) throw error;
-}
-
-export async function createAlert(
-    type: "info" | "warning" | "danger" | "success",
-    title: string,
-    message: string,
-    targetUserId?: string,
-    actionLabel?: string,
-    actionHref?: string
-) {
-    const supabase = await createClient();
-    const { error } = await supabase.from("alerts").insert({
-        tenant_id: TENANT_ID,
-        type,
-        title,
-        message,
-        target_user_id: targetUserId || null,
-        action_label: actionLabel || null,
-        action_href: actionHref || null,
-    });
-
-    if (error) throw error;
 }

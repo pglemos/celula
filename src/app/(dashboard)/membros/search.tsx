@@ -19,6 +19,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { exportPeopleCSV } from "@/lib/actions/people-advanced";
 import { MEMBERSHIP_STATUS_LABELS, type MembershipStatus } from "@/types";
+import { Users, Merge } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Person {
     id: string;
@@ -58,6 +60,10 @@ export function MembrosSearch({
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [genderFilter, setGenderFilter] = useState<string>("all");
     const [neighborhoodFilter, setNeighborhoodFilter] = useState("");
+    const [ageMin, setAgeMin] = useState<string>("");
+    const [ageMax, setAgeMax] = useState<string>("");
+    const [hasPhone, setHasPhone] = useState<boolean | "all">("all");
+    const [hasEmail, setHasEmail] = useState<boolean | "all">("all");
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
 
@@ -99,6 +105,24 @@ export function MembrosSearch({
             p.address_neighborhood?.toLowerCase().includes(neighborhoodFilter.toLowerCase())
         );
     }
+    if (ageMin) {
+        filteredPeople = filteredPeople.filter(p => {
+            const age = getAge(p.birth_date);
+            return age !== null && age >= parseInt(ageMin);
+        });
+    }
+    if (ageMax) {
+        filteredPeople = filteredPeople.filter(p => {
+            const age = getAge(p.birth_date);
+            return age !== null && age <= parseInt(ageMax);
+        });
+    }
+    if (hasPhone !== "all") {
+        filteredPeople = filteredPeople.filter(p => !!p.phone === hasPhone);
+    }
+    if (hasEmail !== "all") {
+        filteredPeople = filteredPeople.filter(p => !!p.email === hasEmail);
+    }
 
     // Extract unique neighborhoods for autocomplete
     const neighborhoods = [...new Set(
@@ -109,44 +133,57 @@ export function MembrosSearch({
         statusFilter !== "all",
         genderFilter !== "all",
         neighborhoodFilter.length > 0,
+        ageMin.length > 0,
+        ageMax.length > 0,
+        hasPhone !== "all",
+        hasEmail !== "all",
     ].filter(Boolean).length;
 
     return (
         <>
-            <div className="flex flex-col gap-3 sm:flex-row">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="flex flex-col gap-4 sm:flex-row items-center">
+                <div className="relative flex-1 group w-full">
+                    <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                     <Input
                         placeholder="Buscar por nome, email, telefone ou bairro..."
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
-                        className="pl-9 bg-secondary border-none"
+                        className="pl-11 h-12 bg-white/60 hover:bg-white focus:bg-white transition-all border border-white shadow-sm rounded-full placeholder:text-slate-400 font-medium text-slate-700"
                     />
                 </div>
-                <Button
-                    variant={showFilters ? "default" : "outline"}
-                    size="default"
-                    className="gap-2 shrink-0"
-                    onClick={() => setShowFilters(!showFilters)}
-                >
-                    <Filter className="h-4 w-4" />
-                    Filtros
-                    {activeFiltersCount > 0 && (
-                        <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full bg-primary text-primary-foreground">
-                            {activeFiltersCount}
-                        </Badge>
-                    )}
-                </Button>
-                <Button
-                    variant="outline"
-                    size="default"
-                    className="gap-2 shrink-0"
-                    onClick={handleExport}
-                    disabled={isPending}
-                >
-                    <Download className="h-4 w-4" />
-                    {isPending ? "Exportando..." : "CSV"}
-                </Button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Button
+                        variant={showFilters ? "default" : "ghost"}
+                        size="default"
+                        className={cn(
+                            "gap-2 rounded-full h-12 px-6 font-bold transition-all shadow-sm border border-white",
+                            showFilters ? "bg-slate-900 text-white" : "bg-white/60 text-slate-500 hover:bg-white hover:text-slate-900"
+                        )}
+                        onClick={() => setShowFilters(!showFilters)}
+                    >
+                        <Filter className="h-4 w-4" />
+                        Filtros
+                        {activeFiltersCount > 0 && (
+                            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full bg-indigo-500 text-white border-none">
+                                {activeFiltersCount}
+                            </Badge>
+                        )}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="gap-2 rounded-full h-12 px-6 font-bold bg-white/60 text-slate-500 hover:bg-white hover:text-slate-900 transition-all shadow-sm border border-white"
+                        onClick={handleExport}
+                        disabled={isPending}
+                    >
+                        <Download className="h-4 w-4" />
+                        {isPending ? "..." : "CSV"}
+                    </Button>
+                    <Link href="/membros/novo">
+                        <Button className="rounded-full h-12 px-8 font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-md">
+                            Novo Membro
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Filter Panel */}
@@ -163,6 +200,10 @@ export function MembrosSearch({
                                     setStatusFilter("all");
                                     setGenderFilter("all");
                                     setNeighborhoodFilter("");
+                                    setAgeMin("");
+                                    setAgeMax("");
+                                    setHasPhone("all");
+                                    setHasEmail("all");
                                 }}
                             >
                                 Limpar filtros
@@ -211,6 +252,46 @@ export function MembrosSearch({
                                     ))}
                                 </datalist>
                             </div>
+                            <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Idade (Mín/Máx)</label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        placeholder="Min"
+                                        value={ageMin}
+                                        onChange={(e) => setAgeMin(e.target.value)}
+                                        className="bg-secondary border-none"
+                                        type="number"
+                                    />
+                                    <Input
+                                        placeholder="Max"
+                                        value={ageMax}
+                                        onChange={(e) => setAgeMax(e.target.value)}
+                                        className="bg-secondary border-none"
+                                        type="number"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Possui Dados</label>
+                                <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        variant={hasPhone === true ? "default" : "secondary"}
+                                        onClick={() => setHasPhone(hasPhone === true ? "all" : true)}
+                                        className="text-[10px] h-8 flex-1"
+                                    >
+                                        Telefone
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant={hasEmail === true ? "default" : "secondary"}
+                                        onClick={() => setHasEmail(hasEmail === true ? "all" : true)}
+                                        className="text-[10px] h-8 flex-1"
+                                    >
+                                        E-mail
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -244,15 +325,15 @@ export function MembrosSearch({
                         return (
                             <Link href={`/membros/${member.id}`} key={member.id}>
                                 <Card
-                                    className="bento-card cursor-pointer animate-fade-in-up"
+                                    className="sugar-pill-card cursor-pointer group hover:border-indigo-200 transition-all"
                                     style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
                                 >
-                                    <CardContent className="flex items-center gap-4 p-4">
-                                        <Avatar className="h-11 w-11 border-2 border-primary/20">
+                                    <CardContent className="flex items-center gap-4 p-3 pl-4">
+                                        <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-2 ring-slate-100/50">
                                             {member.photo_url ? (
                                                 <AvatarImage src={member.photo_url} alt={member.full_name} />
                                             ) : null}
-                                            <AvatarFallback className="bg-primary/10 text-primary text-sm font-bold">
+                                            <AvatarFallback className="bg-slate-100 text-slate-600 text-xs font-bold">
                                                 {member.full_name
                                                     .split(" ")
                                                     .map((n) => n[0])
@@ -261,32 +342,26 @@ export function MembrosSearch({
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-sm truncate">
+                                            <p className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
                                                 {member.full_name}
                                             </p>
-                                            <p className="text-xs text-muted-foreground truncate">
-                                                {cellName} •{" "}
-                                                {member.address_neighborhood || "Sem bairro"}
-                                                {age !== null && ` • ${age} anos`}
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                                                {cellName} • {member.address_neighborhood || "Sem bairro"}
                                             </p>
                                         </div>
-                                        <div className="hidden sm:block text-right">
-                                            <p className="text-xs text-muted-foreground">
-                                                {member.phone || "—"}
-                                            </p>
-                                            <p className="text-[10px] text-muted-foreground/70 truncate max-w-[150px]">
-                                                {member.email || ""}
-                                            </p>
+                                        <div className="hidden lg:flex items-center gap-4 px-4 text-right">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Contato</span>
+                                                <span className="text-xs font-semibold text-slate-500">{member.phone || "—"}</span>
+                                            </div>
                                         </div>
-                                        <MembershipBadge
-                                            status={
-                                                member.membership_status as
-                                                | "member"
-                                                | "baptized_non_member"
-                                                | "non_baptized"
-                                                | "visitor"
-                                            }
-                                        />
+                                        <div className="pr-2">
+                                            <MembershipBadge
+                                                status={
+                                                    member.membership_status as any
+                                                }
+                                            />
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </Link>

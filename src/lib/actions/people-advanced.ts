@@ -153,13 +153,17 @@ export async function searchPeopleAdvanced(filters: {
     if (filters.age_min || filters.age_max) {
         const today = new Date();
         if (filters.age_max) {
-            const minDate = new Date(today.getFullYear() - filters.age_max, today.getMonth(), today.getDate());
+            const minDate = new Date(today.getFullYear() - filters.age_max - 1, today.getMonth(), today.getDate() + 1);
             query = query.gte("birth_date", minDate.toISOString().split("T")[0]);
         }
         if (filters.age_min) {
             const maxDate = new Date(today.getFullYear() - filters.age_min, today.getMonth(), today.getDate());
             query = query.lte("birth_date", maxDate.toISOString().split("T")[0]);
         }
+    }
+
+    if (filters.tags && filters.tags.length > 0) {
+        query = query.contains("tags", filters.tags);
     }
 
     const { data, error } = await query;
@@ -368,47 +372,185 @@ function mapMembershipStatus(value: string): string {
 }
 
 // ============================================
-// LGPD - RIGHT TO BE FORGOTTEN
+// RELATIONSHIPS
 // ============================================
-export async function anonymizePerson(personId: string) {
+export async function getPersonRelationships(personId: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("people_relationships")
+        .select(`
+            *,
+            related_person:people!people_relationships_related_person_id_fkey (id, full_name, photo_url)
+        `)
+        .eq("person_id", personId)
+        .eq("tenant_id", TENANT_ID);
+
+    if (error) throw error;
+    return data || [];
+}
+
+export async function addPersonRelationship(
+    personId: string,
+    relatedPersonId: string,
+    relationshipType: string
+) {
     const supabase = await createClient();
 
+    // Add A -> B
+    const { error: error1 } = await supabase.from("people_relationships").insert({
+        person_id: personId,
+        related_person_id: relatedPersonId,
+        relationship_type: relationshipType,
+        tenant_id: TENANT_ID,
+    });
+
+    if (error1) throw error1;
+
+    // Add B -> A (reciprocal logic)
+    let reciprocalType = relationshipType;
+    if (relationshipType === "child") reciprocalType = "parent";
+    else if (relationshipType === "parent") reciprocalType = "child";
+    else if (relationshipType === "grandchild") reciprocalType = "grandparent";
+    else if (relationshipType === "grandparent") reciprocalType = "grandchild";
+
+    const { error: error2 } = await supabase.from("people_relationships").upsert({
+        person_id: relatedPersonId,
+        related_person_id: personId,
+        relationship_type: reciprocalType,
+        tenant_id: TENANT_ID,
+    }, { onConflict: "person_id,related_person_id,relationship_type" });
+
+    revalidatePath(`/membros/${personId}`);
+    revalidatePath(`/membros/${relatedPersonId}`);
+    return { success: true };
+}
+
+export async function removePersonRelationship(id: string) {
+    const supabase = await createClient();
+
+    // Find the relationship to get IDs for revalidation and reciprocal removal
+    const { data: rel } = await supabase
+        .from("people_relationships")
+        .select("person_id, related_person_id")
+        .eq("id", id)
+        .single();
+
+    if (rel) {
+        // Remove both directions for simplicity in this schema
+        await supabase
+            .from("people_relationships")
+            .delete()
+            .or(`and(person_id.eq.${rel.person_id},related_person_id.eq.${rel.related_person_id}),and(person_id.eq.${rel.related_person_id},related_person_id.eq.${rel.person_id})`)
+            .eq("tenant_id", TENANT_ID);
+
+        revalidatePath(`/membros/${rel.person_id}`);
+        revalidatePath(`/membros/${rel.related_person_id}`);
+    }
+
+    return { success: true };
+}
+
+// ============================================
+// MERGE PROFILES
+// ============================================
+export async function mergePeople(sourceId: string, targetId: string) {
+    const supabase = await createClient();
+
+    // 1. Move Timeline entries
+    await supabase
+        .from("people_timeline")
+        .update({ person_id: targetId })
+        .eq("person_id", sourceId)
+        .eq("tenant_id", TENANT_ID);
+
+    // 2. Move Transfers
+    await supabase
+        .from("people_transfers")
+        .update({ person_id: targetId })
+        .eq("person_id", sourceId)
+        .eq("tenant_id", TENANT_ID);
+
+    // 3. Move Cell Memberships (handle potential conflicts)
+    const { data: sourceCells } = await supabase
+        .from("cell_members")
+        .select("cell_id")
+        .eq("person_id", sourceId);
+
+    if (sourceCells) {
+        for (const cell of sourceCells) {
+            // Check if target is already in this cell
+            const { data: exists } = await supabase
+                .from("cell_members")
+                .select("id")
+                .eq("person_id", targetId)
+                .eq("cell_id", cell.cell_id)
+                .single();
+
+            if (!exists) {
+                await supabase
+                    .from("cell_members")
+                    .update({ person_id: targetId })
+                    .eq("person_id", sourceId)
+                    .eq("cell_id", cell.cell_id);
+            }
+        }
+    }
+
+    // 4. Move Relationships
+    await supabase
+        .from("people_relationships")
+        .update({ person_id: targetId })
+        .eq("person_id", sourceId)
+        .eq("tenant_id", TENANT_ID);
+
+    await supabase
+        .from("people_relationships")
+        .update({ related_person_id: targetId })
+        .eq("related_person_id", sourceId)
+        .eq("tenant_id", TENANT_ID);
+
+    // 5. Anonymize/Deactivate Source
+    await anonymizePerson(sourceId);
+
+    // 6. Record merge in target timeline
+    await addTimelineEvent(
+        targetId,
+        "badge_earned",
+        "Perfil Mesclado",
+        "Dados de um perfil duplicado foram incorporados a este cadastro."
+    );
+
+    revalidatePath("/membros");
+    revalidatePath(`/membros/${targetId}`);
+
+    return { success: true };
+}
+
+export async function anonymizePerson(personId: string) {
+    const supabase = await createClient();
     const { error } = await supabase
         .from("people")
         .update({
-            full_name: "Dados Removidos",
+            full_name: "Usuário Excluído",
             preferred_name: null,
-            birth_date: null,
-            gender: null,
-            marital_status: null,
-            photo_url: null,
-            cpf: null,
-            rg: null,
+            email: null,
             phone: null,
             whatsapp: null,
-            email: null,
             address_street: null,
             address_number: null,
             address_complement: null,
             address_neighborhood: null,
-            address_city: null,
-            address_state: null,
             address_zip: null,
-            latitude: null,
-            longitude: null,
-            notes: null,
-            tags: [],
+            notes: "Cadastro anonimizado por solicitação ou mesclagem (LGPD).",
+            photo_url: null,
             is_active: false,
-            lgpd_consent: false,
-            updated_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
         })
         .eq("id", personId)
         .eq("tenant_id", TENANT_ID);
 
     if (error) throw error;
-
-    // Remove timeline
-    await supabase.from("people_timeline").delete().eq("person_id", personId);
-
     revalidatePath("/membros");
+    revalidatePath(`/membros/${personId}`);
+    return { success: true };
 }

@@ -6,8 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, Save, Download, ShieldCheck, Mail, Database } from "lucide-react";
-import { updateTenantSettings } from "@/lib/actions/settings";
+import { Loader2, Save, Download, ShieldCheck, Mail, Database, MessageSquare, Zap, QrCode } from "lucide-react";
+import { updateTenantSettings, getTenantSettings } from "@/lib/actions/settings";
+import { WhatsAppConnection } from "@/components/settings/whatsapp-connection";
+import { AutomationBuilder } from "@/components/settings/automation-builder";
+import { getWhatsAppSession } from "@/lib/actions/whatsapp";
+import { getAutomationRules } from "@/lib/actions/automations";
+import { useEffect } from "react";
 
 interface Tenant {
     id: string;
@@ -19,10 +24,43 @@ interface Tenant {
     lgpd_dpo_email: string | null;
 }
 
+interface WhatsAppSession {
+    id: string;
+    status: string;
+    qr_code?: string;
+}
+
+interface AutomationRule {
+    id: string;
+    name: string;
+    trigger_type: string;
+    target_audience: string;
+    is_active: boolean;
+}
+
 export function SettingsTabs({ tenant }: { tenant: Tenant }) {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [whatsappSession, setWhatsappSession] = useState<WhatsAppSession | null>(null);
+    const [automationRules, setAutomationRules] = useState<AutomationRule[]>([]);
+
+    useEffect(() => {
+        // Load additional data for integrations
+        async function loadIntegrations() {
+            try {
+                const [session, rules] = await Promise.all([
+                    getWhatsAppSession(),
+                    getAutomationRules()
+                ]);
+                setWhatsappSession(session);
+                setAutomationRules(rules);
+            } catch (err) {
+                console.error("Error loading integrations:", err);
+            }
+        }
+        loadIntegrations();
+    }, []);
 
     async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -45,10 +83,11 @@ export function SettingsTabs({ tenant }: { tenant: Tenant }) {
     return (
         <Tabs defaultValue="geral" className="animate-fade-in-up">
             <TabsList className="bg-secondary/50 flex flex-wrap h-auto p-1 max-w-2xl">
-                <TabsTrigger value="geral" className="flex-1">Geral</TabsTrigger>
-                <TabsTrigger value="permissoes" className="flex-1">Permissões e Papéis</TabsTrigger>
-                <TabsTrigger value="lgpd" className="flex-1">LGPD / DPO</TabsTrigger>
-                <TabsTrigger value="dados" className="flex-1">Dados & Backup</TabsTrigger>
+                <TabsTrigger value="geral" className="flex-1 text-xs sm:text-sm">Geral</TabsTrigger>
+                <TabsTrigger value="integracoes" className="flex-1 text-xs sm:text-sm">Integrações</TabsTrigger>
+                <TabsTrigger value="permissoes" className="flex-1 text-xs sm:text-sm">Permissões</TabsTrigger>
+                <TabsTrigger value="lgpd" className="flex-1 text-xs sm:text-sm">LGPD</TabsTrigger>
+                <TabsTrigger value="dados" className="flex-1 text-xs sm:text-sm">Dados</TabsTrigger>
             </TabsList>
 
             {error && (
@@ -110,6 +149,54 @@ export function SettingsTabs({ tenant }: { tenant: Tenant }) {
                         </form>
                     </CardContent>
                 </Card>
+            </TabsContent>
+
+            {/* INTEGRAÇÕES */}
+            <TabsContent value="integracoes" className="mt-4 space-y-6">
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <div className="space-y-6">
+                        <Card className="glass-card border-border/50">
+                            <CardHeader>
+                                <div className="flex items-center gap-2">
+                                    <MessageSquare className="h-5 w-5 text-emerald-400" />
+                                    <CardTitle>WhatsApp Web</CardTitle>
+                                </div>
+                                <CardDescription>Conecte o WhatsApp para enviar notificações automáticas.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <WhatsAppConnection initialSession={whatsappSession} />
+                            </CardContent>
+                        </Card>
+
+                        <Card className="glass-card border-border/50">
+                            <CardHeader>
+                                <div className="flex items-center gap-2">
+                                    <Zap className="h-5 w-5 text-amber-400" />
+                                    <CardTitle>Dicas de Automação</CardTitle>
+                                </div>
+                                <CardDescription>Como aproveitar ao máximo as notificações.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="text-sm space-y-3 text-muted-foreground">
+                                <p>• <b>Hierarquia:</b> Mensagens podem ser enviadas para Liderados, Supervisores ou Coordenadores.</p>
+                                <p>• <b>Indicadores:</b> Use frequência, visitantes e relatórios atrasados como gatilhos.</p>
+                                <p>• <b>Variáveis:</b> Use {"{nome}"} e {"{celula}"} no seu modelo de mensagem.</p>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <Card className="glass-card border-border/50">
+                        <CardHeader>
+                            <div className="flex items-center gap-2">
+                                <Zap className="h-5 w-5 text-blue-400" />
+                                <CardTitle>Regras de Automação</CardTitle>
+                            </div>
+                            <CardDescription>Configure como e quando as mensagens serão enviadas.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <AutomationBuilder initialRules={automationRules} />
+                        </CardContent>
+                    </Card>
+                </div>
             </TabsContent>
 
             {/* PERMISSÕES */}

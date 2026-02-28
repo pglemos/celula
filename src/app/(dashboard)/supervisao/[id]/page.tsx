@@ -39,7 +39,6 @@ export default async function SupervisionDetailPage({
             totalMembers: 0,
             activeRate: 0,
             avgPresence: 0,
-            totalDecisions: 0,
             cellStats: [],
         })),
     ]);
@@ -122,8 +121,8 @@ export default async function SupervisionDetailPage({
                                                 </p>
                                             </div>
                                             <Badge variant="outline" className={`text-xs ${cellHealth === "green" ? "text-emerald-500 bg-emerald-500/10" :
-                                                    cellHealth === "yellow" ? "text-amber-500 bg-amber-500/10" :
-                                                        "text-red-500 bg-red-500/10"
+                                                cellHealth === "yellow" ? "text-amber-500 bg-amber-500/10" :
+                                                    "text-red-500 bg-red-500/10"
                                                 } border-none`}>
                                                 {cell.avgPresence}%
                                             </Badge>

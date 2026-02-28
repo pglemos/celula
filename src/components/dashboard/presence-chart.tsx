@@ -1,7 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
 import {
     AreaChart,
     Area,
@@ -12,7 +10,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-// Placeholder chart data — will be replaced with real aggregated data from meetings
+// Placeholder chart data
 const chartData = [
     { week: "S1", presence: 85 },
     { week: "S2", presence: 88 },
@@ -30,40 +28,54 @@ const chartData = [
 
 export function PresenceChart() {
     return (
-        <Card className="glass-card border-border/50 lg:col-span-2 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
-            <CardHeader className="pb-2">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                    Histórico de Presença
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="presenceGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="oklch(0.65 0.25 280)" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="oklch(0.65 0.25 280)" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.28 0.02 280)" />
-                            <XAxis dataKey="week" stroke="oklch(0.5 0.02 280)" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis domain={[70, 100]} stroke="oklch(0.5 0.02 280)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: "oklch(0.18 0.02 280)",
-                                    border: "1px solid oklch(0.28 0.02 280)",
-                                    borderRadius: "8px",
-                                    fontSize: "13px",
-                                }}
-                                formatter={(value: number | undefined) => [`${value ?? 0}%`, "Presença"]}
-                            />
-                            <Area type="monotone" dataKey="presence" stroke="oklch(0.65 0.25 280)" strokeWidth={2} fill="url(#presenceGradient)" />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="h-full w-full min-h-[300px] animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+            <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                        <linearGradient id="presenceGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.2} />
+                            <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis
+                        dataKey="week"
+                        stroke="#94a3b8"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        dy={10}
+                    />
+                    <YAxis
+                        domain={[70, 100]}
+                        stroke="#94a3b8"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(v) => `${v}%`}
+                        dx={-10}
+                    />
+                    <Tooltip
+                        contentStyle={{
+                            backgroundColor: "#ffffff",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "12px",
+                            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            color: "#0f172a"
+                        }}
+                        formatter={(value?: number) => [`${value || 0}%`, "Presença"]}
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="presence"
+                        stroke="#4f46e5"
+                        strokeWidth={3}
+                        fill="url(#presenceGradient)"
+                    />
+                </AreaChart>
+            </ResponsiveContainer>
+        </div>
     );
 }

@@ -48,7 +48,7 @@ const navigation: NavItem[] = [
     },
     {
         label: "Consolidação",
-        href: "/consolidacao",
+        href: "/converts",
         icon: Heart,
     },
     {
@@ -106,7 +106,7 @@ export function AppSidebar() {
     return (
         <aside
             className={cn(
-                "relative z-40 hidden md:flex flex-col h-full bg-white text-slate-800 transition-all duration-300 rounded-[2.5rem] shadow-[0_4px_40px_rgba(0,0,0,0.03)] overflow-hidden",
+                "relative z-40 hidden md:flex flex-col h-full bg-transparent text-slate-800 transition-all duration-300",
                 collapsed ? "w-[96px]" : "w-[280px]"
             )}
         >
@@ -116,7 +116,7 @@ export function AppSidebar() {
                     <Church className="h-6 w-6 text-white" />
                 </div>
                 {!collapsed && (
-                    <div className="flex flex-col overflow-hidden animate-fade-in-up">
+                    <div className="flex flex-col animate-fade-in-up">
                         <span className="text-xl font-extrabold tracking-tight text-slate-900 leading-none">
                             Central
                         </span>
@@ -146,20 +146,19 @@ export function AppSidebar() {
                         <Link
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-full px-4 mx-2 py-3 text-sm font-semibold transition-all duration-300",
+                                "flex items-center justify-center rounded-full transition-all duration-300",
+                                collapsed ? "h-12 w-12 mx-auto" : "h-12 w-12 mx-4",
                                 isActive
-                                    ? "bg-[#121212] text-white shadow-lg shadow-black/10 hover:shadow-xl hover:-translate-y-[1px]"
-                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
-                                collapsed && "justify-center px-0 mx-3 py-3"
+                                    ? "bg-white text-slate-900 shadow-sm border border-slate-100"
+                                    : "text-slate-400 hover:text-slate-600"
                             )}
                         >
                             <item.icon
                                 className={cn(
                                     "h-5 w-5 shrink-0 transition-colors",
-                                    isActive ? "text-white" : ""
+                                    isActive ? "text-slate-900" : ""
                                 )}
                             />
-                            {!collapsed && <span>{item.label}</span>}
                         </Link>
                     );
 
@@ -184,7 +183,7 @@ export function AppSidebar() {
             </nav>
 
             {/* Bottom Nav */}
-            <div className="border-t border-slate-100 px-1 py-3 space-y-2">
+            <div className="px-1 py-3 space-y-2">
                 {bottomNav.map((item) => {
                     const isActive = pathname.startsWith(item.href);
                     return (
@@ -192,22 +191,20 @@ export function AppSidebar() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-full px-4 mx-2 py-3 text-sm font-semibold transition-all duration-300",
+                                "flex items-center justify-center rounded-full h-12 w-12 mx-4 transition-all duration-300",
                                 isActive
-                                    ? "bg-[#121212] text-white shadow-lg shadow-black/10 hover:shadow-xl hover:-translate-y-[1px]"
-                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
-                                collapsed && "justify-center px-0 mx-3 py-3"
+                                    ? "bg-white text-slate-900 shadow-sm border border-slate-100"
+                                    : "text-slate-400 hover:text-slate-600"
                             )}
                         >
                             <item.icon className="h-5 w-5 shrink-0" />
-                            {!collapsed && <span>{item.label}</span>}
                         </Link>
                     );
                 })}
             </div>
 
             {/* Collapse Toggle */}
-            <div className="border-t border-slate-100 p-3">
+            <div className="p-3">
                 <Button
                     variant="ghost"
                     size="sm"

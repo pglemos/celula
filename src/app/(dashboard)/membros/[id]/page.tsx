@@ -10,7 +10,12 @@ import { MembershipBadge } from "@/components/ui/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { getPersonById } from "@/lib/actions/people";
-import { getPersonTimeline, getPersonTransfers } from "@/lib/actions/people-advanced";
+import {
+    getPersonTimeline,
+    getPersonTransfers,
+    getPersonRelationships,
+    anonymizePerson
+} from "@/lib/actions/people-advanced";
 import Link from "next/link";
 
 const TIMELINE_ICONS: Record<string, typeof CircleDot> = {
@@ -47,10 +52,11 @@ export default async function MemberDetailPage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-    const [member, timeline, transfers] = await Promise.all([
+    const [member, timeline, transfers, relationships] = await Promise.all([
         getPersonById(id),
         getPersonTimeline(id).catch(() => []),
         getPersonTransfers(id).catch(() => []),
+        getPersonRelationships(id).catch(() => []),
     ]);
 
     const initials = member.full_name.split(" ").map((n: string) => n[0]).slice(0, 2).join("");
@@ -141,9 +147,47 @@ export default async function MemberDetailPage({
                     <TabsTrigger value="timeline">Cronologia</TabsTrigger>
                     <TabsTrigger value="celulas">Células</TabsTrigger>
                     <TabsTrigger value="presencas">Presenças</TabsTrigger>
+                    <TabsTrigger value="relacionamentos">Família</TabsTrigger>
                     <TabsTrigger value="dados">Dados</TabsTrigger>
                     <TabsTrigger value="lgpd">LGPD</TabsTrigger>
                 </TabsList>
+
+                {/* Relationships Tab */}
+                <TabsContent value="relacionamentos" className="mt-4 space-y-3">
+                    {relationships.length > 0 ? (
+                        relationships.map((rel: any) => (
+                            <Link href={`/membros/${rel.related_person_id}`} key={rel.id}>
+                                <Card className="glass-card border-border/50 cursor-pointer transition-all hover:border-primary/30">
+                                    <CardContent className="flex items-center justify-between p-4">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-10 w-10">
+                                                {rel.related_person?.photo_url && <AvatarImage src={rel.related_person.photo_url} />}
+                                                <AvatarFallback className="bg-primary/10 text-primary">
+                                                    {rel.related_person?.full_name?.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div>
+                                                <p className="font-semibold text-sm">{rel.related_person?.full_name}</p>
+                                                <p className="text-xs text-muted-foreground capitalize">
+                                                    {rel.relationship_type === 'spouse' ? 'Cônjuge' :
+                                                        rel.relationship_type === 'child' ? 'Filho(a)' :
+                                                            rel.relationship_type === 'parent' ? 'Pai/Mãe' :
+                                                                rel.relationship_type === 'sibling' ? 'Irmão(ã)' : rel.relationship_type}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
+                        ))
+                    ) : (
+                        <Card className="glass-card border-border/50">
+                            <CardContent className="p-6 text-center text-muted-foreground text-sm">
+                                Nenhum vínculo familiar registrado.
+                            </CardContent>
+                        </Card>
+                    )}
+                </TabsContent>
 
                 {/* Timeline Tab */}
                 <TabsContent value="timeline" className="mt-4">

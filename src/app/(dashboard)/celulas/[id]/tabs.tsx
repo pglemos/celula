@@ -7,11 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { updateTrainingCompetency } from "@/lib/actions/cell-advanced";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
     Plus, UserCheck, UserX, Target, BookOpen,
-    Phone, CheckCircle2, Clock, AlertTriangle
+    Phone, CheckCircle2, Clock, AlertTriangle, ArrowRightLeft, Save
 } from "lucide-react";
 import Link from "next/link";
+import { MultiplicationDistributor } from "./multiplication-distributor";
 
 interface Member {
     id: string;
@@ -115,6 +119,22 @@ export function CellDetailTabs({
     multiplicationPlan?: MultiplicationPlan | null;
     maxParticipants?: number;
 }) {
+    const router = useRouter();
+    const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
+
+    const handleCompetencyToggle = async (trainingId: string, key: string, checked: boolean) => {
+        const loadingKey = `${trainingId}-${key}`;
+        setLoadingMap(prev => ({ ...prev, [loadingKey]: true }));
+        try {
+            await updateTrainingCompetency(trainingId, key, checked);
+            router.refresh();
+        } catch (error) {
+            console.error("Erro ao atualizar competência:", error);
+        } finally {
+            setLoadingMap(prev => ({ ...prev, [loadingKey]: false }));
+        }
+    };
+
     return (
         <Tabs defaultValue="participantes" className="animate-fade-in-up" style={{ animationDelay: "350ms" }}>
             <TabsList className="bg-secondary/50 flex-wrap">
@@ -307,14 +327,23 @@ export function CellDetailTabs({
                                     </div>
                                     {/* Competency Checklist */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-                                        {Object.entries(t.competencies || {}).map(([key, value]) => (
-                                            <div key={key} className="flex items-center gap-2 text-xs">
-                                                <Checkbox checked={value as boolean} disabled className="h-3.5 w-3.5" />
-                                                <span className={value ? "text-foreground" : "text-muted-foreground"}>
-                                                    {COMPETENCY_LABELS[key] || key}
-                                                </span>
-                                            </div>
-                                        ))}
+                                        {Object.entries(COMPETENCY_LABELS).map(([key, label]) => {
+                                            const isDone = !!(t.competencies && t.competencies[key]);
+                                            const loadingKey = `${t.id}-${key}`;
+                                            return (
+                                                <div key={key} className="flex items-center gap-2 text-xs">
+                                                    <Checkbox
+                                                        checked={isDone}
+                                                        disabled={loadingMap[loadingKey]}
+                                                        onCheckedChange={(checked) => handleCompetencyToggle(t.id, key, !!checked)}
+                                                        className="h-3.5 w-3.5"
+                                                    />
+                                                    <span className={isDone ? "text-foreground" : "text-muted-foreground"}>
+                                                        {label}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                     <p className="text-[10px] text-muted-foreground mt-2">
                                         Início: {new Date(t.start_date).toLocaleDateString("pt-BR")}
@@ -382,23 +411,17 @@ export function CellDetailTabs({
                             </div>
 
                             {/* Visual distribution */}
-                            {(multiplicationPlan.member_distribution?.original?.length > 0 ||
-                                multiplicationPlan.member_distribution?.new?.length > 0) && (
-                                    <div className="grid grid-cols-2 gap-4 mt-4">
-                                        <div className="rounded-xl bg-primary/5 p-3">
-                                            <p className="text-xs font-semibold mb-2">Célula Original</p>
-                                            <p className="text-lg font-bold text-primary">
-                                                {multiplicationPlan.member_distribution.original.length}
-                                            </p>
-                                        </div>
-                                        <div className="rounded-xl bg-blue-500/5 p-3">
-                                            <p className="text-xs font-semibold mb-2">Nova Célula</p>
-                                            <p className="text-lg font-bold text-blue-500">
-                                                {multiplicationPlan.member_distribution.new.length}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="mt-4 pt-4 border-t border-border/50">
+                                <p className="text-sm font-semibold mb-4 flex items-center gap-2">
+                                    <ArrowRightLeft className="h-4 w-4 text-primary" />
+                                    Distribuição de Participantes
+                                </p>
+                                <MultiplicationDistributor
+                                    planId={multiplicationPlan.id}
+                                    members={members}
+                                    initialDistribution={multiplicationPlan.member_distribution}
+                                />
+                            </div>
                         </CardContent>
                     </Card>
                 ) : (

@@ -28,7 +28,8 @@ export async function updateTenantSettings(formData: FormData) {
         "secondary_color",
         "cell_term",
         "timezone",
-        "lgpd_dpo_email"
+        "lgpd_dpo_email",
+        "cell_categories"
     ];
 
     for (const field of fields) {
@@ -49,4 +50,31 @@ export async function updateTenantSettings(formData: FormData) {
     revalidatePath("/configuracoes");
     revalidatePath("/");
     return data;
+}
+
+export async function getVisitorFollowups() {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("visitor_followups")
+        .select(`
+            *,
+            person:people (id, full_name, phone, photo_url),
+            meeting:cell_meetings (id, meeting_date, theme, cell:cells (name))
+        `)
+        .eq("status", "pending")
+        .order("next_contact_date");
+
+    if (error) throw error;
+    return data;
+}
+
+export async function updateFollowupStatus(id: string, status: string, notes?: string) {
+    const supabase = await createClient();
+    const { error } = await supabase
+        .from("visitor_followups")
+        .update({ status, notes, last_contact_at: new Date().toISOString() })
+        .eq("id", id);
+
+    if (error) throw error;
+    revalidatePath("/visitantes");
 }

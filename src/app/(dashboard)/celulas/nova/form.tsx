@@ -12,7 +12,7 @@ import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createCell } from "@/lib/actions/cells";
 
-export default function NovaCelulaForm({ people = [], supervisions = [] }: { people: any[], supervisions: any[] }) {
+export default function NovaCelulaForm({ people = [], supervisions = [], categories = [] }: { people: any[], supervisions: any[], categories: string[] }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -75,12 +75,9 @@ export default function NovaCelulaForm({ people = [], supervisions = [] }: { peo
                                             <SelectValue placeholder="Selecione um foco" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Jovens">Jovens</SelectItem>
-                                            <SelectItem value="Casais">Casais</SelectItem>
-                                            <SelectItem value="Mulheres">Mulheres</SelectItem>
-                                            <SelectItem value="Homens">Homens</SelectItem>
-                                            <SelectItem value="Mista">Mista</SelectItem>
-                                            <SelectItem value="Adolescentes">Adolescentes</SelectItem>
+                                            {categories.map(cat => (
+                                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -109,10 +106,10 @@ export default function NovaCelulaForm({ people = [], supervisions = [] }: { peo
                         </CardContent>
                     </Card>
 
-                    {/* Liderança e Vínculos */}
+                    {/* Liderança e Papéis */}
                     <Card className="glass-card md:col-span-2">
                         <CardHeader>
-                            <CardTitle className="text-lg">Liderança e Vínculos</CardTitle>
+                            <CardTitle className="text-lg">Liderança e Papéis</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
@@ -137,6 +134,40 @@ export default function NovaCelulaForm({ people = [], supervisions = [] }: { peo
                                     <Select name="co_leader_id">
                                         <SelectTrigger className="bg-secondary border-none">
                                             <SelectValue placeholder="Selecione o co-líder" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">Nenhum</SelectItem>
+                                            {people.map(person => (
+                                                <SelectItem key={person.id} value={person.id}>
+                                                    {person.full_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="host_id">Anfitrião (Opcional)</Label>
+                                    <Select name="host_id">
+                                        <SelectTrigger className="bg-secondary border-none">
+                                            <SelectValue placeholder="Selecione o anfitrião" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">Nenhum</SelectItem>
+                                            {people.map(person => (
+                                                <SelectItem key={person.id} value={person.id}>
+                                                    {person.full_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="trainee_id">Líder em Treinamento / Estagiário</Label>
+                                    <Select name="trainee_id">
+                                        <SelectTrigger className="bg-secondary border-none">
+                                            <SelectValue placeholder="Selecione o trainee" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">Nenhum</SelectItem>
