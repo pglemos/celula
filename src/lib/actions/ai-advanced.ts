@@ -61,16 +61,21 @@ export async function getPastoralInsights() {
         }
     ];
 
+    // Final Preaching Topics (Refined to be more dynamic)
     const preachingTopics = [
         {
-            topic: "Perseverança e Comunhão",
-            reason: "Notamos uma queda de 15% na frequência dos cultos de domingo e nas células. Uma mensagem sobre a importância da constância é recomendada.",
-            scriptures: ["Hebreus 10:25", "Atos 2:42"],
+            topic: avgPresence < 7 ? "Renovo Espiritual: Buscando a Presença" : "Vivendo na Plenitude do Espírito",
+            reason: avgPresence < 7
+                ? "A percepção da 'Presença de Deus' nas células baixou. É hora de clamar por um novo fôlego e avivamento."
+                : "As células relatam experiências profundas de Deus. Momento ideal para ensinar sobre maturidade espiritual.",
+            scriptures: avgPresence < 7 ? ["Salmos 51:10", "Atos 3:19"] : ["Efésios 5:18", "Gálatas 5:22"],
         },
         {
-            title: "Curando as Feridas",
-            reason: "Houve um aumento significativo (3) em relatórios de tensão ou conflitos interpessoais relatados na supervisão pastoral.",
-            scriptures: ["Colossenses 3:13", "Tiago 5:16"],
+            topic: lowHealthCells > 0 ? "O Cuidado de Deus e o Corpo de Cristo" : "Multiplicação: O Mandato do Reino",
+            reason: lowHealthCells > 0
+                ? `${lowHealthCells} células estão em alerta de saúde. O rebanho precisa de pastoreio e unidade.`
+                : "A saúde das células está excelente. Momento profético para focar em expansão e liderança.",
+            scriptures: lowHealthCells > 0 ? ["1 Corintios 12:25", "Gálatas 6:2"] : ["Mateus 28:19", "Atos 1:8"],
         }
     ];
 

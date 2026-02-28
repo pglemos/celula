@@ -49,7 +49,7 @@ export async function getFinancialStats() {
     };
 
     (currentMonthData || []).forEach(row => {
-        const amt = Number(row.amount);
+        const amt = typeof row.amount === 'string' ? parseFloat(row.amount) : row.amount;
         stats.total += amt;
         if (row.type === 'tithe') stats.tithes += amt;
         else if (row.type === 'offering') stats.offerings += amt;

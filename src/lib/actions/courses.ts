@@ -89,7 +89,12 @@ export async function markCourseAttendance(classId: string, enrollmentId: string
     } else {
         const { error: insertError } = await supabase
             .from("course_attendance")
-            .insert({ class_id: classId, enrollment_id: enrollmentId, present });
+            .insert({
+                tenant_id: TENANT_ID,
+                class_id: classId,
+                enrollment_id: enrollmentId,
+                present
+            });
         error = insertError;
     }
 
