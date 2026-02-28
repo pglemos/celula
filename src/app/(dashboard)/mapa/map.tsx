@@ -51,6 +51,7 @@ export function CellMap({ cells }: { cells: any[] }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string>("all");
     const [selectedDay, setSelectedDay] = useState<string>("all");
+    const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>("all");
     const [viewState, setViewState] = useState<{ center: [number, number]; zoom: number }>({
         center: [-19.9167, -43.9345], // Default (BH) - will update below
         zoom: 13
@@ -72,12 +73,14 @@ export function CellMap({ cells }: { cells: any[] }) {
         return cells.filter(cell => {
             const matchesSearch = cell.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 cell.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                cell.leader?.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
+                cell.leader?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                cell.neighborhood?.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesCategory = selectedCategory === "all" || cell.category?.toLowerCase() === selectedCategory.toLowerCase();
             const matchesDay = selectedDay === "all" || cell.meeting_day?.toLowerCase().startsWith(selectedDay.toLowerCase());
-            return matchesSearch && matchesCategory && matchesDay;
+            const matchesNeighborhood = selectedNeighborhood === "all" || cell.neighborhood?.toLowerCase() === selectedNeighborhood.toLowerCase();
+            return matchesSearch && matchesCategory && matchesDay && matchesNeighborhood;
         });
-    }, [cells, searchQuery, selectedCategory, selectedDay]);
+    }, [cells, searchQuery, selectedCategory, selectedDay, selectedNeighborhood]);
 
     const handleCellSelect = (cell: any) => {
         if (cell.lat && cell.lng) {
@@ -124,6 +127,31 @@ export function CellMap({ cells }: { cells: any[] }) {
                     </div>
 
                     <div className="space-y-4">
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Bairro</p>
+                            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                                <Button
+                                    variant={selectedNeighborhood === "all" ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setSelectedNeighborhood("all")}
+                                    className="rounded-full h-8 px-4 font-bold text-[10px] whitespace-nowrap"
+                                >
+                                    TODOS
+                                </Button>
+                                {Array.from(new Set(cells.map(c => c.neighborhood || c.address_neighborhood).filter(Boolean))).map(neighbor => (
+                                    <Button
+                                        key={neighbor as string}
+                                        variant={selectedNeighborhood.toLowerCase() === (neighbor as string).toLowerCase() ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setSelectedNeighborhood((neighbor as string).toLowerCase())}
+                                        className="rounded-full h-8 px-4 font-bold text-[10px] whitespace-nowrap"
+                                    >
+                                        {(neighbor as string).toUpperCase()}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Categoria</p>
                             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -219,9 +247,13 @@ export function CellMap({ cells }: { cells: any[] }) {
                             >
                                 <CardContent className="p-4">
                                     <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-bold text-sm text-slate-800 group-hover:text-indigo-600 transition-colors uppercase">
-                                            {cell.name}
-                                        </h4>
+                                        <div className="space-y-1">
+                                            <h4 className="font-bold text-sm text-slate-800 group-hover:text-indigo-600 transition-colors uppercase">
+                                                {cell.name}
+                                            </h4>
+                                            {cell.status === 'CRÍTICO' && <Badge className="bg-rose-500 text-white border-none text-[8px] font-black px-2 py-0.5 rounded-full">CRÍTICO</Badge>}
+                                            {cell.status === 'ATENÇÃO' && <Badge className="bg-amber-500 text-white border-none text-[8px] font-black px-2 py-0.5 rounded-full">ATENÇÃO</Badge>}
+                                        </div>
                                         <Badge
                                             style={{ backgroundColor: `${getMarkerColor(cell.category)}20`, color: getMarkerColor(cell.category) }}
                                             className="border-none text-[8px] font-black px-2 py-0.5 rounded-full"
@@ -291,9 +323,13 @@ export function CellMap({ cells }: { cells: any[] }) {
                                             <Building2 className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <h3 className="font-black text-slate-900 leading-none mb-1 uppercase tracking-tight">{cell.name}</h3>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="font-black text-slate-900 leading-none uppercase tracking-tight">{cell.name}</h3>
+                                                {cell.status === 'CRÍTICO' && <Badge className="bg-rose-500 text-white border-none text-[7px] font-black px-1.5 py-0.5 rounded-full">CRÍTICO</Badge>}
+                                                {cell.status === 'ATENÇÃO' && <Badge className="bg-amber-500 text-white border-none text-[7px] font-black px-1.5 py-0.5 rounded-full">ATENÇÃO</Badge>}
+                                            </div>
                                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                                                {cell.meeting_day || "Sábado"} • {cell.meeting_time || "19:00"}
+                                                {cell.neighborhood || cell.address_neighborhood || "Bairro não informado"} • {cell.meeting_day || "Sábado"}
                                             </p>
                                         </div>
                                     </div>
