@@ -59,7 +59,7 @@ export default async function ConvertsPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-slate-500 text-sm">
-                                                {new Date(nc.decision_date).toLocaleDateString('pt-BR')}
+                                                {new Date(nc.conversion_date).toLocaleDateString('pt-BR')}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">

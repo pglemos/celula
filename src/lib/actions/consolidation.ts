@@ -11,11 +11,11 @@ export async function getNewConverts(statusFilter?: string) {
         .from("new_converts")
         .select(`
             *,
-            person:people!new_converts_person_id_fkey(id, full_name, phone, address_neighborhood),
-            consolidator:people!new_converts_consolidator_id_fkey(id, full_name)
+            person:people!person_id(id, full_name, phone, address_neighborhood),
+            consolidator:people!consolidator_id(id, full_name)
         `)
         .eq("tenant_id", TENANT_ID)
-        .order("decision_date", { ascending: false });
+        .order("conversion_date", { ascending: false });
 
     if (statusFilter) {
         query = query.eq("status", statusFilter);
@@ -33,8 +33,8 @@ export async function getConvertById(id: string) {
         .from("new_converts")
         .select(`
             *,
-            person:people!new_converts_person_id_fkey(id, full_name, phone, address_neighborhood, birth_date, gender),
-            consolidator:people!new_converts_consolidator_id_fkey(id, full_name),
+            person:people!person_id(id, full_name, phone, address_neighborhood, birth_date, gender),
+            consolidator:people!consolidator_id(id, full_name),
             consolidation_events(*)
         `)
         .eq("id", id)
@@ -110,9 +110,12 @@ export async function registerDecision(data: {
         .insert({
             tenant_id: TENANT_ID,
             person_id: person.id,
-            decision_date: data.decisionDate,
-            decision_context: data.decisionType,
-            status: "new"
+            conversion_date: data.decisionDate,
+            conversion_context: data.decisionType,
+            status: "new",
+            neighborhood: data.neighborhood,
+            birth_date: data.birthDate,
+            gender: data.gender
         })
         .select()
         .single();
@@ -295,10 +298,13 @@ export async function createNewConvert(formData: FormData) {
     const data = {
         tenant_id: TENANT_ID,
         person_id: person.id,
-        decision_date: (formData.get("decision_date") as string) || new Date().toISOString().split('T')[0],
-        decision_context: (formData.get("decision_type") as string) || "visitor",
+        conversion_date: (formData.get("decision_date") as string) || new Date().toISOString().split('T')[0],
+        conversion_context: (formData.get("decision_type") as string) || "visitor",
         consolidator_id: (formData.get("consolidator_id") as string) === "none" ? null : (formData.get("consolidator_id") as string),
-        status: "new"
+        status: "new",
+        neighborhood: formData.get("neighborhood") as string,
+        birth_date: formData.get("birth_date") as string,
+        gender: formData.get("gender") as string
     };
 
     const { data: nc, error } = await supabase

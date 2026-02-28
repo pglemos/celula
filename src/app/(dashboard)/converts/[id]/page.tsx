@@ -21,7 +21,7 @@ export default async function ConvertDetailPage({
         notFound();
     }
 
-    const decisionDate = new Date(convert.decision_date);
+    const decisionDate = new Date(convert.conversion_date);
     const timeSinceDecision = formatDistanceToNow(decisionDate, { addSuffix: true, locale: ptBR });
 
     const statusConfig = {
@@ -78,7 +78,7 @@ export default async function ConvertDetailPage({
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs text-slate-400 uppercase font-semibold">Tipo de Decisão</p>
-                                <p className="text-slate-700 capitalize">{convert.decision_context || "Não informado"}</p>
+                                <p className="text-slate-700 capitalize">{convert.conversion_context || "Não informado"}</p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-xs text-slate-400 uppercase font-semibold">Consolidador</p>
