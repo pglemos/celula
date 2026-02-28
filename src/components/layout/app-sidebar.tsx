@@ -17,6 +17,14 @@ import {
     ChevronRight,
     Trophy,
     Bot,
+    Newspaper,
+    Info,
+    Map,
+    BookOpen,
+    Zap,
+    Cake,
+    PlayCircle,
+    MonitorPlay,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -52,6 +60,11 @@ const navigation: NavItem[] = [
         icon: Heart,
     },
     {
+        label: "Aniversariantes",
+        href: "/aniversariantes",
+        icon: Cake,
+    },
+    {
         section: "Crescimento",
         label: "Células",
         href: "/celulas",
@@ -63,6 +76,32 @@ const navigation: NavItem[] = [
         icon: Network,
     },
     {
+        section: "Recursos",
+        label: "Feed da Igreja",
+        href: "/app",
+        icon: Newspaper,
+    },
+    {
+        label: "Sobre a Igreja",
+        href: "/sobre",
+        icon: Info,
+    },
+    {
+        label: "Buscar Células",
+        href: "/mapa",
+        icon: Map,
+    },
+    {
+        label: "Lições / Extras",
+        href: "/licoes",
+        icon: BookOpen,
+    },
+    {
+        label: "Dinâmicas",
+        href: "/dinamicas",
+        icon: Zap,
+    },
+    {
         section: "Atividades",
         label: "Eventos",
         href: "/eventos",
@@ -72,6 +111,17 @@ const navigation: NavItem[] = [
         label: "Cursos",
         href: "/cursos",
         icon: GraduationCap,
+    },
+    {
+        section: "Formação",
+        label: "Tutoriais",
+        href: "/tutoriais",
+        icon: PlayCircle,
+    },
+    {
+        label: "célula.in Class",
+        href: "/class",
+        icon: MonitorPlay,
     },
     {
         section: "Gestão",
