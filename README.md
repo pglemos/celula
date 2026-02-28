@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⛪ Central 3.0 — Church OS
 
-## Getting Started
+> A plataforma definitiva de gestão para igrejas em células. White-label, mobile-first, com IA nativa.
 
-First, run the development server:
+## 🚀 Stack
+
+| Camada | Tecnologia |
+|--------|-----------|
+| **Frontend** | Next.js 16 (App Router) + TypeScript |
+| **Styling** | Tailwind CSS + shadcn/ui |
+| **Charts** | Recharts |
+| **Database** | PostgreSQL (Supabase) + RLS |
+| **Auth** | Supabase Auth / Clerk |
+| **Data Fetching** | TanStack React Query |
+| **Forms** | react-hook-form + zod |
+
+## 📦 Módulos MVP
+
+- ✅ **Dashboard** — KPIs, gráfico de presença, IA Pastoral, ações rápidas
+- ✅ **Membros** — CRUD, busca, filtros, perfil com timeline
+- ✅ **Células** — Grid, detalhes, registro de reunião (presença, ⭐, decisões)
+- ✅ **Supervisão** — Redes, semáforo de saúde, métricas por célula
+
+## 🛠️ Setup
 
 ```bash
+# 1. Instalar dependências
+npm install
+
+# 2. Configurar variáveis de ambiente
+cp .env.example .env.local
+# Edite .env.local com suas credenciais Supabase
+
+# 3. Rodar em desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# 4. Build de produção
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📐 Estrutura
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+├── app/(dashboard)/          # Páginas do dashboard
+│   ├── page.tsx              # Dashboard principal
+│   ├── membros/              # Módulo de membros
+│   ├── celulas/              # Módulo de células
+│   └── supervisao/           # Módulo de supervisão
+├── components/
+│   ├── layout/               # Sidebar + Header
+│   ├── dashboard/            # KPI cards
+│   └── ui/                   # shadcn/ui components
+├── lib/
+│   ├── supabase/             # Clients (server + browser)
+│   └── mock-data.ts          # Dados de demonstração
+supabase/
+└── migrations/               # Schema SQL com RLS
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📋 Roadmap
 
-## Learn More
+- **MVP** (Semanas 1–8): Membros, Células, Supervisão ← _estamos aqui_
+- **V1.0** (Semanas 9–16): Consolidação, Eventos, Cursos, Financeiro, App Membro
+- **V2.0** (Semanas 17–24): IA Pastoral, Gamificação, WhatsApp, Mapa 3D, API pública
 
-To learn more about Next.js, take a look at the following resources:
+## 📄 Licença
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Proprietário — © 2026 Igreja Central de Belo Horizonte
