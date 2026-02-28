@@ -22,14 +22,14 @@ export async function getPastoralInsights() {
         .eq("status", "active");
 
     const { data: alerts } = await supabase
-        .from("alerts")
-        .select("title, message, type, severity")
+        .from("supervision_alerts")
+        .select("message, type, severity")
         .eq("tenant_id", TENANT_ID)
-        .eq("is_read", false);
+        .eq("is_resolved", false);
 
     const { data: recentMeetings } = await supabase
         .from("cell_meetings")
-        .select("god_presence_rating, topic")
+        .select("gods_presence, topic")
         .eq("tenant_id", TENANT_ID)
         .gte("date", lastWeek.toISOString());
 
@@ -37,7 +37,7 @@ export async function getPastoralInsights() {
     const totalCells = cells?.length || 0;
     const lowHealthCells = cells?.filter(c => (c.health_score || 0) < 50).length || 0;
     const avgPresence = recentMeetings && recentMeetings.length > 0
-        ? Math.round(recentMeetings.reduce((a, b) => a + (b.god_presence_rating || 0), 0) / recentMeetings.length)
+        ? Math.round(recentMeetings.reduce((a, b) => a + (b.gods_presence || 0), 0) / recentMeetings.length)
         : 0;
 
     // Simulated "AI generated" insights based on real DB stats
@@ -79,7 +79,10 @@ export async function getPastoralInsights() {
         }
     ];
 
-    const systemAlerts = alerts || [];
+    const systemAlerts = (alerts || []).map(a => ({
+        title: a.type,
+        message: a.message
+    }));
 
     return {
         summary,

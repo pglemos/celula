@@ -14,7 +14,7 @@ export async function getDRE(startDate: string, endDate: string) {
         .from("contributions")
         .select(`
             amount, type, created_at,
-            category:financial_categories!contributions_category_id_fkey(name, type, dre_group)
+            category:financial_categories!category_id(name, type, dre_group)
         `)
         .eq("tenant_id", TENANT_ID)
         .gte("created_at", startDate)
@@ -151,7 +151,7 @@ export async function getLeaderboard(limit = 20) {
         .from("gamification_profiles")
         .select(`
             *,
-            person:people!gamification_profiles_person_id_fkey(id, full_name, photo_url)
+            person:people!person_id(id, full_name, photo_url)
         `)
         .eq("tenant_id", TENANT_ID)
         .order("xp_total", { ascending: false })
@@ -174,7 +174,7 @@ export async function getProfileGamification(personId: string) {
         .from("earned_badges")
         .select(`
             *,
-            badge:badges!earned_badges_badge_id_fkey(id, name, description, icon, color, category, xp_reward)
+            badge:badges!badge_id(id, name, description, icon, color, category, xp_reward)
         `)
         .eq("person_id", personId)
         .order("earned_at", { ascending: false });

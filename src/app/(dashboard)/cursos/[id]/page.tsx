@@ -132,8 +132,10 @@ export default async function CursoDetailPage({
                             <CardDescription>Lista de alunos matriculados na turma</CardDescription>
                         </div>
                         {/* Placeholder for adding student */}
-                        <Button variant="outline" size="sm" className="gap-2">
-                            <UserPlus className="h-4 w-4" /> Add Aluno
+                        <Button variant="outline" size="sm" className="gap-2" asChild>
+                            <Link href={`/cursos/${id}/matricula`}>
+                                <UserPlus className="h-4 w-4" /> Add Aluno
+                            </Link>
                         </Button>
                     </CardHeader>
                     <CardContent>

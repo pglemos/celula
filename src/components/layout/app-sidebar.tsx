@@ -101,12 +101,12 @@ const bottomNav = [
 
 export function AppSidebar() {
     const pathname = usePathname();
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
 
     return (
         <aside
             className={cn(
-                "relative z-40 hidden md:flex flex-col h-full bg-transparent text-slate-800 transition-all duration-300",
+                "relative z-40 hidden md:flex flex-col h-full bg-transparent text-slate-800 transition-all duration-300 py-4",
                 collapsed ? "w-[96px]" : "w-[280px]"
             )}
         >
@@ -146,11 +146,11 @@ export function AppSidebar() {
                         <Link
                             href={item.href}
                             className={cn(
-                                "flex items-center justify-center rounded-full transition-all duration-300",
+                                "flex items-center justify-center rounded-2xl transition-all duration-300",
                                 collapsed ? "h-12 w-12 mx-auto" : "h-12 w-12 mx-4",
                                 isActive
-                                    ? "bg-white text-slate-900 shadow-sm border border-slate-100"
-                                    : "text-slate-400 hover:text-slate-600"
+                                    ? "bg-white text-slate-900 shadow-[0_8px_16px_rgba(0,0,0,0.06)] border border-transparent"
+                                    : "text-slate-400 hover:bg-white/60 hover:text-slate-800 hover:shadow-sm"
                             )}
                         >
                             <item.icon
@@ -193,8 +193,8 @@ export function AppSidebar() {
                             className={cn(
                                 "flex items-center justify-center rounded-full h-12 w-12 mx-4 transition-all duration-300",
                                 isActive
-                                    ? "bg-white text-slate-900 shadow-sm border border-slate-100"
-                                    : "text-slate-400 hover:text-slate-600"
+                                    ? "bg-white/80 text-slate-900 shadow-[0_2px_10px_rgba(0,0,0,0.05)] border border-white"
+                                    : "text-slate-400 hover:bg-white/40 hover:text-slate-800"
                             )}
                         >
                             <item.icon className="h-5 w-5 shrink-0" />

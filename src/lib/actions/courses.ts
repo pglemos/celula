@@ -10,9 +10,9 @@ export async function getCourses() {
         .from("courses")
         .select(`
             *,
-            instructor:people!courses_instructor_id_fkey(id, full_name),
-            course_enrollments (id, status),
-            course_classes (id, class_date)
+            instructor:people!instructor_id(id, full_name),
+            course_enrollments!course_id (id, status),
+            course_classes!course_id (id, class_date)
         `)
         .eq("tenant_id", TENANT_ID)
         .order("start_date", { ascending: true });
@@ -95,7 +95,6 @@ export async function markCourseAttendance(classId: string, enrollmentId: string
         const { error: insertError } = await supabase
             .from("course_attendance")
             .insert({
-                tenant_id: TENANT_ID,
                 class_id: classId,
                 enrollment_id: enrollmentId,
                 present

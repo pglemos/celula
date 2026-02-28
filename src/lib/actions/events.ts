@@ -10,7 +10,7 @@ export async function getEvents() {
         .from("events")
         .select(`
             *,
-            event_registrations (id, status)
+            event_registrations!event_id (id, status)
         `)
         .eq("tenant_id", TENANT_ID)
         .order("start_date", { ascending: true });

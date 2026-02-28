@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, CalendarClock, MapPin, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Users, CalendarClock, MapPin, CheckCircle2, UserPlus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -108,6 +108,11 @@ export default async function EventoDetailPage({
                             <CardTitle className="text-lg">Inscritos ({activeRegistrations.length})</CardTitle>
                             <CardDescription>Lista de participantes registrados no evento</CardDescription>
                         </div>
+                        <Button variant="outline" size="sm" className="gap-2" asChild>
+                            <Link href={`/eventos/${id}/inscricao`}>
+                                <UserPlus className="h-4 w-4" /> Nova Inscrição
+                            </Link>
+                        </Button>
                     </CardHeader>
                     <CardContent>
                         <div className="divide-y divide-border/30 border-t border-border/30 mt-4">

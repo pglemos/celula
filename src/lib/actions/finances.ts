@@ -10,7 +10,7 @@ export async function getContributions(startDate?: string, endDate?: string) {
         .from("contributions")
         .select(`
             *,
-            person:people!contributions_person_id_fkey(id, full_name)
+            person:people!person_id(id, full_name)
         `)
         .eq("tenant_id", TENANT_ID)
         .order("date", { ascending: false })

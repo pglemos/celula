@@ -119,26 +119,26 @@
   background-attachment: fixed;
 }
 
-/* Premium Glass/Bento Cards resembling SugarCRM UI */
+/* Premium Glass/Bento Cards resembling Santorini UI */
 .bento-card {
-  @apply bg-white transition-all duration-300;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  @apply bg-white/70 backdrop-blur-xl transition-all duration-300;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .bento-card:hover {
-  @apply -translate-y-[1px];
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.04);
+  @apply -translate-y-[2px];
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
 }
 
 /* Inner pill cards with extremely rounded corners */
 .sugar-pill-card {
-  @apply bg-white transition-all duration-300;
+  @apply bg-white/80 backdrop-blur-lg transition-all duration-300;
   border-radius: 9999px;
   /* Max pill shape */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 /* Solid accent cards for high visual impact */
