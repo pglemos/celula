@@ -1,10 +1,21 @@
-import { ArrowLeft, Users, Calendar, Clock, MapPin, ClipboardCheck } from "lucide-react";
+import {
+    ArrowLeft, Users, Calendar, Clock, MapPin, ClipboardCheck,
+    BookOpen, UserPlus, Target
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getCellById, getCellMeetings } from "@/lib/actions/cells";
+import { getLeaderTraining, getVisitorFollowups, getMultiplicationPlan, calculateCellHealth } from "@/lib/actions/cell-advanced";
 import { MEETING_DAYS } from "@/lib/constants";
 import { CellDetailTabs } from "./tabs";
 import Link from "next/link";
+
+const HEALTH_CONFIG = {
+    green: { label: "Saudável", color: "bg-emerald-500", textColor: "text-emerald-600" },
+    yellow: { label: "Atenção", color: "bg-amber-500", textColor: "text-amber-600" },
+    red: { label: "Crítica", color: "bg-red-500", textColor: "text-red-600" },
+};
 
 export default async function CellDetailPage({
     params,
@@ -12,9 +23,17 @@ export default async function CellDetailPage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-    const cell = await getCellById(id);
-    const meetings = await getCellMeetings(id);
+    const [cell, meetings, training, followups, multiplicationPlan, health] = await Promise.all([
+        getCellById(id),
+        getCellMeetings(id),
+        getLeaderTraining(id).catch(() => []),
+        getVisitorFollowups(id).catch(() => []),
+        getMultiplicationPlan(id).catch(() => null),
+        calculateCellHealth(id).catch(() => "green" as const),
+    ]);
+
     const membersCount = cell.cell_members?.length || 0;
+    const healthConfig = HEALTH_CONFIG[health];
 
     const infoCards = [
         { icon: Users, label: "Participantes", value: membersCount },
@@ -25,15 +44,28 @@ export default async function CellDetailPage({
 
     return (
         <div className="space-y-6">
+            {/* Header */}
             <div className="flex items-center gap-4">
                 <Link href="/celulas">
                     <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
                 </Link>
                 <div className="flex-1">
-                    <h1 className="text-2xl font-bold tracking-tight">{cell.name}</h1>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-bold tracking-tight">{cell.name}</h1>
+                        <div className="flex items-center gap-1.5">
+                            <div className={`h-2.5 w-2.5 rounded-full ${healthConfig.color}`} />
+                            <span className={`text-xs font-medium ${healthConfig.textColor}`}>
+                                {healthConfig.label}
+                            </span>
+                        </div>
+                        {cell.category && (
+                            <Badge variant="outline" className="text-xs">{cell.category}</Badge>
+                        )}
+                    </div>
                     <p className="text-sm text-muted-foreground">
                         Líder: {cell.leader?.full_name || "—"}
                         {cell.co_leader && ` • Co-líder: ${cell.co_leader.full_name}`}
+                        {cell.supervision && ` • Rede: ${cell.supervision.name}`}
                     </p>
                 </div>
                 <Link href={`/celulas/${id}/reuniao`}>
@@ -44,6 +76,7 @@ export default async function CellDetailPage({
                 </Link>
             </div>
 
+            {/* Info Cards */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {infoCards.map((item, i) => (
                     <Card key={i} className="glass-card border-border/50 animate-fade-in-up" style={{ animationDelay: `${i * 80}ms` }}>
@@ -60,11 +93,16 @@ export default async function CellDetailPage({
                 ))}
             </div>
 
+            {/* Tabs */}
             <CellDetailTabs
                 cellId={id}
                 members={cell.cell_members || []}
                 meetings={meetings}
                 membersCount={membersCount}
+                training={training}
+                followups={followups}
+                multiplicationPlan={multiplicationPlan}
+                maxParticipants={cell.max_participants || 15}
             />
         </div>
     );

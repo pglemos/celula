@@ -15,6 +15,8 @@ import {
     Church,
     ChevronLeft,
     ChevronRight,
+    Trophy,
+    Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,18 +27,32 @@ import {
 } from "@/components/ui/tooltip";
 import { useState } from "react";
 
-const navigation = [
+interface NavItem {
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+    section?: string;
+}
+
+const navigation: NavItem[] = [
     {
         label: "Dashboard",
         href: "/",
         icon: LayoutDashboard,
     },
     {
+        section: "Pessoas",
         label: "Membros",
         href: "/membros",
         icon: Users,
     },
     {
+        label: "Consolidação",
+        href: "/consolidacao",
+        icon: Heart,
+    },
+    {
+        section: "Crescimento",
         label: "Células",
         href: "/celulas",
         icon: CircleDot,
@@ -47,11 +63,7 @@ const navigation = [
         icon: Network,
     },
     {
-        label: "Consolidação",
-        href: "/consolidacao",
-        icon: Heart,
-    },
-    {
+        section: "Atividades",
         label: "Eventos",
         href: "/eventos",
         icon: CalendarDays,
@@ -62,29 +74,20 @@ const navigation = [
         icon: GraduationCap,
     },
     {
+        section: "Gestão",
         label: "Financeiro",
         href: "/contribuicoes",
         icon: HandCoins,
     },
     {
-        label: "Consolidação",
-        href: "/consolidacao",
-        icon: Heart,
+        label: "Gamificação",
+        href: "/gamificacao",
+        icon: Trophy,
     },
     {
-        label: "Eventos",
-        href: "/eventos",
-        icon: CalendarDays,
-    },
-    {
-        label: "Cursos",
-        href: "/cursos",
-        icon: GraduationCap,
-    },
-    {
-        label: "Contribuições",
-        href: "/contribuicoes",
-        icon: HandCoins,
+        label: "IA Pastoral",
+        href: "/ia",
+        icon: Bot,
     },
 ];
 
@@ -103,22 +106,22 @@ export function AppSidebar() {
     return (
         <aside
             className={cn(
-                "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300",
-                collapsed ? "w-[68px]" : "w-[260px]"
+                "relative z-40 hidden md:flex flex-col h-full bg-[#0a0a0a] text-white transition-all duration-300 rounded-[2.5rem] border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden",
+                collapsed ? "w-[88px]" : "w-[280px]"
             )}
         >
             {/* Logo */}
-            <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary">
-                    <Church className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-24 items-center gap-4 px-6 pt-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+                    <Church className="h-6 w-6 text-white" />
                 </div>
                 {!collapsed && (
-                    <div className="flex flex-col overflow-hidden">
-                        <span className="text-sm font-bold text-sidebar-foreground tracking-tight">
-                            Central 3.0
+                    <div className="flex flex-col overflow-hidden animate-fade-in-up">
+                        <span className="text-xl font-extrabold tracking-tight text-white leading-none">
+                            Central
                         </span>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-                            Church OS
+                        <span className="text-[11px] font-medium text-white/50 uppercase tracking-[0.2em] mt-1">
+                            OS 3.0
                         </span>
                     </div>
                 )}
@@ -126,14 +129,21 @@ export function AppSidebar() {
 
             {/* Main Nav */}
             <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-                {navigation.map((item) => {
+                {navigation.map((item, index) => {
                     const isActive =
                         pathname === item.href ||
                         (item.href !== "/" && pathname.startsWith(item.href));
 
+                    const sectionLabel = item.section && (
+                        <div key={`section-${item.section}`} className={cn("px-3 pt-4 pb-1", index === 0 && "pt-0")}>
+                            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+                                {item.section}
+                            </span>
+                        </div>
+                    );
+
                     const linkContent = (
                         <Link
-                            key={item.href}
                             href={item.href}
                             className={cn(
                                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
@@ -155,18 +165,23 @@ export function AppSidebar() {
                         </Link>
                     );
 
-                    if (collapsed) {
-                        return (
-                            <Tooltip key={item.href} delayDuration={0}>
-                                <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                                <TooltipContent side="right" sideOffset={8}>
-                                    {item.label}
-                                </TooltipContent>
-                            </Tooltip>
-                        );
-                    }
+                    const navElement = collapsed ? (
+                        <Tooltip key={`nav-${index}`} delayDuration={0}>
+                            <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+                            <TooltipContent side="right" sideOffset={8}>
+                                {item.label}
+                            </TooltipContent>
+                        </Tooltip>
+                    ) : (
+                        <div key={`nav-${index}`} className="relative">{linkContent}</div>
+                    );
 
-                    return <div key={item.href} className="relative">{linkContent}</div>;
+                    return (
+                        <div key={`group-${index}`}>
+                            {!collapsed && sectionLabel}
+                            {navElement}
+                        </div>
+                    );
                 })}
             </nav>
 

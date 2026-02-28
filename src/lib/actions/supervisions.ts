@@ -3,6 +3,22 @@
 import { createClient } from "@/lib/supabase/server";
 import { TENANT_ID } from "@/lib/constants";
 
+export async function getSupervisionById(id: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("supervisions")
+        .select(`
+            *,
+            supervisor:people!supervisions_supervisor_id_fkey(id, full_name, phone)
+        `)
+        .eq("id", id)
+        .eq("tenant_id", TENANT_ID)
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
 export async function getSupervisions() {
     const supabase = await createClient();
     const { data, error } = await supabase

@@ -10,6 +10,7 @@ interface KpiCardProps {
         value: string;
         positive: boolean;
     };
+    variant?: "default" | "primary" | "accent" | "dark";
     className?: string;
     delay?: number;
 }
@@ -19,46 +20,86 @@ export function KpiCard({
     value,
     icon: Icon,
     trend,
+    variant = "default",
     className,
     delay = 0,
 }: KpiCardProps) {
+    const cardClass = {
+        default: "bento-card",
+        primary: "bento-card-primary",
+        accent: "bento-card-accent",
+        dark: "bento-card-dark",
+    }[variant];
+
+    const iconBgClass = {
+        default: "bg-primary/10 text-primary",
+        primary: "bg-white/20 text-white",
+        accent: "bg-black/10 text-accent-foreground",
+        dark: "bg-white/10 text-white",
+    }[variant];
+
+    const textClass = {
+        default: "text-muted-foreground",
+        primary: "text-primary-foreground/80",
+        accent: "text-accent-foreground/80",
+        dark: "text-zinc-400",
+    }[variant];
+
+    const valueClass = {
+        default: "text-foreground",
+        primary: "text-primary-foreground",
+        accent: "text-accent-foreground",
+        dark: "text-white",
+    }[variant];
+
     return (
         <Card
             className={cn(
-                "glass-card border-border/50 animate-fade-in-up overflow-hidden relative group",
+                cardClass,
+                "animate-fade-in-up overflow-hidden relative group p-1",
                 className
             )}
             style={{ animationDelay: `${delay}ms` }}
         >
-            <CardContent className="p-5">
+            <CardContent className="p-5 flex flex-col justify-between h-full">
                 <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <div className="space-y-4">
+                        <p className={cn("text-[11px] font-bold uppercase tracking-widest", textClass)}>
                             {title}
                         </p>
-                        <p className="text-3xl font-bold tracking-tight">{value}</p>
-                        {trend && (
-                            <div
-                                className={cn(
-                                    "flex items-center gap-1 text-xs font-medium",
-                                    trend.positive ? "text-success" : "text-destructive"
-                                )}
-                            >
-                                {trend.positive ? (
-                                    <TrendingUp className="h-3.5 w-3.5" />
-                                ) : (
-                                    <TrendingDown className="h-3.5 w-3.5" />
-                                )}
-                                {trend.value}
-                            </div>
-                        )}
+                        <p className={cn("text-4xl lg:text-5xl font-extrabold tracking-tighter mt-1", valueClass)}>
+                            {value}
+                        </p>
                     </div>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary transition-transform group-hover:scale-110">
-                        <Icon className="h-5 w-5" />
+                    <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 shadow-sm", iconBgClass)}>
+                        <Icon className="h-6 w-6" />
                     </div>
                 </div>
+
+                {trend && (
+                    <div className="mt-6 flex items-center gap-2">
+                        <div
+                            className={cn(
+                                "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full",
+                                trend.positive
+                                    ? variant === 'default' ? "bg-success/10 text-success" : "bg-white/20 text-white"
+                                    : variant === 'default' ? "bg-destructive/10 text-destructive" : "bg-black/20 text-white"
+                            )}
+                        >
+                            {trend.positive ? (
+                                <TrendingUp className="h-3.5 w-3.5" />
+                            ) : (
+                                <TrendingDown className="h-3.5 w-3.5" />
+                            )}
+                            {trend.value}
+                        </div>
+                        <span className={cn("text-[10px] font-medium", textClass)}>vs último mês</span>
+                    </div>
+                )}
             </CardContent>
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer pointer-events-none" />
+            {variant === 'default' && (
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer pointer-events-none" />
+            )}
         </Card>
     );
 }
