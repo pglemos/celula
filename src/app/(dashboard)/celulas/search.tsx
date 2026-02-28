@@ -84,7 +84,7 @@ export function CelulasSearch({
                         return (
                             <Link href={`/celulas/${cell.id}`} key={cell.id}>
                                 <Card
-                                    className="bento-card cursor-pointer transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_12px_40px_var(--color-primary)] opacity-95 hover:opacity-100 animate-fade-in-up h-full"
+                                    className="bento-card cursor-pointer animate-fade-in-up h-full"
                                     style={{ animationDelay: `${i * 80}ms` }}
                                 >
                                     <CardContent className="p-5 space-y-4">

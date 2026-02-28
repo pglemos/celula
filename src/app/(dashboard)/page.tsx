@@ -45,8 +45,8 @@ export default async function DashboardPage() {
 
                 /* --- ROW 1: Hero & Active Members (Bento Focus) --- */
                 {/* Hero / Main Insight (col-span-2, row-span-1 or 2) */}
-                <div className="col-span-1 md:col-span-2 xl:col-span-2 row-span-2 relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-primary/80 to-accent/90 border-0 shadow-[0_12px_40px_var(--color-primary)] text-white p-8 md:p-10 flex flex-col justify-between group transition-all duration-300 hover:shadow-[0_20px_50px_var(--color-primary)]">
-                    <div className="absolute top-0 right-0 w-3/4 h-full opacity-30 mix-blend-overlay pointer-events-none">
+                <div className="col-span-1 md:col-span-2 xl:col-span-2 row-span-2 relative overflow-hidden rounded-[2.5rem] bg-white border-0 shadow-[0_4px_40px_rgba(0,0,0,0.03)] text-slate-900 p-8 md:p-10 flex flex-col justify-between group transition-all duration-300 hover:shadow-[0_12px_50px_rgba(0,0,0,0.06)] hover:-translate-y-[2px]">
+                    <div className="absolute top-0 right-0 w-3/4 h-full opacity-5 pointer-events-none grayscale">
                         <Image
                             src="/images/dashboard-banner.png"
                             alt="Dashboard Banner"
@@ -56,21 +56,21 @@ export default async function DashboardPage() {
                         />
                     </div>
                     <div className="relative z-10 space-y-4">
-                        <div className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-md text-white border border-white/30">
+                        <div className="inline-flex items-center rounded-full bg-[#121212] px-4 py-1.5 text-xs font-bold text-white shadow-md">
                             Central 3.0 OS
                         </div>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter leading-tight max-w-[500px]">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter leading-tight max-w-[500px] text-slate-900">
                             Gestão Moderna & Integrada.
                         </h1>
-                        <p className="text-white/80 text-lg max-w-[400px] font-medium">
+                        <p className="text-slate-500 text-lg max-w-[400px] font-medium leading-relaxed">
                             Acompanhe o pulso da sua igreja em tempo real. Bem-vindo ao novo painel de controle.
                         </p>
                     </div>
                     <div className="relative z-10 mt-8 flex gap-4">
-                        <Button className="rounded-full bg-white text-primary hover:bg-white/90 font-bold px-8 shadow-xl">
+                        <Button className="rounded-full bg-[#121212] text-white hover:bg-[#222] font-semibold px-8 py-6 h-auto shadow-lg shadow-black/10">
                             Visualizar Relatórios
                         </Button>
-                        <Button variant="outline" className="rounded-full bg-transparent border-white/40 text-white hover:bg-white/10 font-bold px-6">
+                        <Button variant="outline" className="rounded-full bg-slate-100 hover:bg-slate-200 text-slate-900 border-0 font-semibold px-6 py-6 h-auto">
                             Exportar
                         </Button>
                     </div>
@@ -121,38 +121,38 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* AI Insights - Vertical Bento Card */}
-                <Card className="col-span-1 md:col-span-2 xl:col-span-1 bento-card border-border/40 animate-fade-in-up flex flex-col h-full bg-white/40 backdrop-blur-2xl" style={{ animationDelay: "500ms" }}>
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-lg font-bold flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg text-white">
-                                <Bot className="h-5 w-5" />
+                <Card className="col-span-1 md:col-span-2 xl:col-span-1 border-0 shadow-[0_4px_40px_rgba(0,0,0,0.03)] rounded-[2rem] animate-fade-in-up flex flex-col h-full bg-white transition-all hover:shadow-[0_12px_50px_rgba(0,0,0,0.06)] hover:-translate-y-[2px]" style={{ animationDelay: "500ms" }}>
+                    <CardHeader className="pb-4 pt-6 px-6">
+                        <CardTitle className="text-xl font-extrabold flex items-center gap-3 text-slate-900">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#121212] shadow-lg text-white">
+                                <Bot className="h-6 w-6" />
                             </div>
                             IA Pastoral
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2">
+                    <CardContent className="space-y-4 flex-1 overflow-y-auto custom-scrollbar px-6 pb-6">
                         {mockInsights.map((insight, i) => {
                             const Icon = insightIcons[insight.type];
                             const colorClass = {
-                                warning: "text-amber-500 bg-amber-50 border-amber-200",
-                                danger: "text-red-500 bg-red-50 border-red-200",
-                                success: "text-emerald-500 bg-emerald-50 border-emerald-200",
-                                info: "text-blue-500 bg-blue-50 border-blue-200",
+                                warning: "text-[#121212] bg-amber-200 border-amber-300",
+                                danger: "text-white bg-red-500 border-red-600",
+                                success: "text-emerald-900 bg-emerald-200 border-emerald-300",
+                                info: "text-blue-900 bg-blue-200 border-blue-300",
                             }[insight.type];
 
                             return (
-                                <div key={i} className="flex flex-col gap-2 rounded-2xl border bg-white p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
+                                <div key={i} className="flex flex-col gap-3 rounded-2xl border-0 bg-slate-50/80 p-5 transition-all hover:bg-slate-100">
                                     <div className="flex justify-between items-start">
-                                        <div className={cn("flex h-8 w-8 items-center justify-center rounded-full border", colorClass)}>
-                                            <Icon className="h-4 w-4" />
+                                        <div className={cn("flex h-10 w-10 items-center justify-center rounded-full border border-black/5 shadow-sm", colorClass)}>
+                                            <Icon className="h-5 w-5" />
                                         </div>
                                         <Link href={insight.href}>
-                                            <Button variant="ghost" size="sm" className="h-8 rounded-full text-xs font-semibold px-3 bg-secondary/50 hover:bg-secondary">
+                                            <Button variant="ghost" size="sm" className="h-8 rounded-full text-xs font-bold px-4 bg-white shadow-sm border border-slate-200 hover:bg-slate-50 text-slate-700">
                                                 {insight.action}
                                             </Button>
                                         </Link>
                                     </div>
-                                    <p className="text-sm font-medium leading-snug text-foreground/90 mt-1">
+                                    <p className="text-[15px] font-semibold leading-snug text-slate-800 mt-2">
                                         {insight.message}
                                     </p>
                                 </div>

@@ -61,7 +61,7 @@ export default async function SupervisaoPage() {
                         return (
                             <Card
                                 key={supervision.id}
-                                className="glass-card border-border/50 animate-fade-in-up transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+                                className="bento-card animate-fade-in-up"
                                 style={{ animationDelay: `${(i + 3) * 80}ms` }}
                             >
                                 <CardHeader className="pb-3">

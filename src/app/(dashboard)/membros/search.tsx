@@ -244,7 +244,7 @@ export function MembrosSearch({
                         return (
                             <Link href={`/membros/${member.id}`} key={member.id}>
                                 <Card
-                                    className="bento-card cursor-pointer transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_12px_40px_var(--color-primary)] opacity-95 hover:opacity-100 animate-fade-in-up"
+                                    className="bento-card cursor-pointer animate-fade-in-up"
                                     style={{ animationDelay: `${Math.min(i, 10) * 50}ms` }}
                                 >
                                     <CardContent className="flex items-center gap-4 p-4">

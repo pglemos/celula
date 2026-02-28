@@ -106,21 +106,21 @@ export function AppSidebar() {
     return (
         <aside
             className={cn(
-                "relative z-40 hidden md:flex flex-col h-full bg-[#0a0a0a] text-white transition-all duration-300 rounded-[2.5rem] border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden",
-                collapsed ? "w-[88px]" : "w-[280px]"
+                "relative z-40 hidden md:flex flex-col h-full bg-white text-slate-800 transition-all duration-300 rounded-[2.5rem] shadow-[0_4px_40px_rgba(0,0,0,0.03)] overflow-hidden",
+                collapsed ? "w-[96px]" : "w-[280px]"
             )}
         >
             {/* Logo */}
             <div className="flex h-24 items-center gap-4 px-6 pt-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#121212] shadow-xl shadow-black/10">
                     <Church className="h-6 w-6 text-white" />
                 </div>
                 {!collapsed && (
                     <div className="flex flex-col overflow-hidden animate-fade-in-up">
-                        <span className="text-xl font-extrabold tracking-tight text-white leading-none">
+                        <span className="text-xl font-extrabold tracking-tight text-slate-900 leading-none">
                             Central
                         </span>
-                        <span className="text-[11px] font-medium text-white/50 uppercase tracking-[0.2em] mt-1">
+                        <span className="text-[11px] font-medium text-slate-500 uppercase tracking-[0.2em] mt-1">
                             OS 3.0
                         </span>
                     </div>
@@ -146,22 +146,20 @@ export function AppSidebar() {
                         <Link
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                                "flex items-center gap-3 rounded-full px-4 mx-2 py-3 text-sm font-semibold transition-all duration-300",
                                 isActive
-                                    ? "bg-primary/15 text-primary shadow-sm"
-                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                                    ? "bg-[#121212] text-white shadow-lg shadow-black/10 hover:shadow-xl hover:-translate-y-[1px]"
+                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+                                collapsed && "justify-center px-0 mx-3 py-3"
                             )}
                         >
                             <item.icon
                                 className={cn(
-                                    "h-5 w-5 shrink-0",
-                                    isActive ? "text-primary" : ""
+                                    "h-5 w-5 shrink-0 transition-colors",
+                                    isActive ? "text-white" : ""
                                 )}
                             />
                             {!collapsed && <span>{item.label}</span>}
-                            {isActive && (
-                                <div className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-primary" />
-                            )}
                         </Link>
                     );
 
@@ -186,7 +184,7 @@ export function AppSidebar() {
             </nav>
 
             {/* Bottom Nav */}
-            <div className="border-t border-sidebar-border px-3 py-3 space-y-1">
+            <div className="border-t border-slate-100 px-1 py-3 space-y-2">
                 {bottomNav.map((item) => {
                     const isActive = pathname.startsWith(item.href);
                     return (
@@ -194,10 +192,11 @@ export function AppSidebar() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                                "flex items-center gap-3 rounded-full px-4 mx-2 py-3 text-sm font-semibold transition-all duration-300",
                                 isActive
-                                    ? "bg-primary/15 text-primary"
-                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                                    ? "bg-[#121212] text-white shadow-lg shadow-black/10 hover:shadow-xl hover:-translate-y-[1px]"
+                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+                                collapsed && "justify-center px-0 mx-3 py-3"
                             )}
                         >
                             <item.icon className="h-5 w-5 shrink-0" />
@@ -208,12 +207,12 @@ export function AppSidebar() {
             </div>
 
             {/* Collapse Toggle */}
-            <div className="border-t border-sidebar-border p-3">
+            <div className="border-t border-slate-100 p-3">
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setCollapsed(!collapsed)}
-                    className="w-full justify-center text-muted-foreground hover:text-foreground"
+                    className="w-full justify-center text-slate-400 hover:text-slate-900 rounded-full py-6"
                 >
                     {collapsed ? (
                         <ChevronRight className="h-4 w-4" />

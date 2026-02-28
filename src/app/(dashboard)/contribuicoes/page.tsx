@@ -47,7 +47,7 @@ export default async function FinanceiroPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-4">
-                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
+                <Card className="bento-card">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Entradas Totais</CardTitle>
                         <Wallet className="h-4 w-4 text-emerald-500" />
@@ -57,7 +57,7 @@ export default async function FinanceiroPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
+                <Card className="bento-card">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Dízimos</CardTitle>
                         <ArrowUpRight className="h-4 w-4 text-emerald-500" />
@@ -67,7 +67,7 @@ export default async function FinanceiroPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
+                <Card className="bento-card">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Ofertas</CardTitle>
                         <Activity className="h-4 w-4 text-blue-500" />
@@ -77,7 +77,7 @@ export default async function FinanceiroPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="bento-card transition-all hover:shadow-[0_12px_40px_var(--color-primary)] hover:-translate-y-1">
+                <Card className="bento-card">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Outros</CardTitle>
                         <ArrowDownRight className="h-4 w-4 text-muted-foreground" />

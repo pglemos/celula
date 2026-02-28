@@ -26,29 +26,29 @@ export function KpiCard({
 }: KpiCardProps) {
     const cardClass = {
         default: "bento-card",
-        primary: "bento-card-primary",
-        accent: "bento-card-accent",
-        dark: "bento-card-dark",
+        primary: "bento-card",
+        accent: "bento-card",
+        dark: "bento-card-dark border-0",
     }[variant];
 
     const iconBgClass = {
-        default: "bg-primary/10 text-primary",
-        primary: "bg-white/20 text-white",
-        accent: "bg-black/10 text-accent-foreground",
-        dark: "bg-white/10 text-white",
+        default: "bg-slate-50 text-slate-700 border border-slate-100 shadow-sm",
+        primary: "bg-blue-600 text-white shadow-lg shadow-blue-600/20 border-0",
+        accent: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 border-0",
+        dark: "bg-white/10 text-white border border-white/10",
     }[variant];
 
     const textClass = {
-        default: "text-muted-foreground",
-        primary: "text-primary-foreground/80",
-        accent: "text-accent-foreground/80",
+        default: "text-slate-500",
+        primary: "text-slate-500",
+        accent: "text-slate-500",
         dark: "text-zinc-400",
     }[variant];
 
     const valueClass = {
-        default: "text-foreground",
-        primary: "text-primary-foreground",
-        accent: "text-accent-foreground",
+        default: "text-slate-900",
+        primary: "text-slate-900",
+        accent: "text-slate-900",
         dark: "text-white",
     }[variant];
 
@@ -56,7 +56,7 @@ export function KpiCard({
         <Card
             className={cn(
                 cardClass,
-                "animate-fade-in-up overflow-hidden relative group p-1",
+                "animate-fade-in-up overflow-hidden relative group p-1 transition-all hover:-translate-y-[2px] rounded-[2rem]",
                 className
             )}
             style={{ animationDelay: `${delay}ms` }}

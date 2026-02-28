@@ -36,7 +36,7 @@ export default async function CursosPage() {
                         const startDate = course.start_date ? new Date(course.start_date) : null;
 
                         return (
-                            <Card key={course.id} className={`bento-card flex flex-col transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_12px_40px_var(--color-primary)] ${course.status === 'completed' ? 'opacity-70' : 'opacity-95 hover:opacity-100'}`}>
+                            <Card key={course.id} className={`bento-card flex flex-col ${course.status === 'completed' ? 'opacity-70' : ''}`}>
                                 <CardHeader>
                                     <div className="flex justify-between items-start gap-4">
                                         <CardTitle className="text-xl line-clamp-2">{course.name}</CardTitle>
